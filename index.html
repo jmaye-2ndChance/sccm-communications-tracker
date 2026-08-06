@@ -67,6 +67,7 @@
     padding:1px 8px;cursor:pointer;vertical-align:1px;border:1px solid #a8c4de;background:#eef5fb;color:#2e5580}
   .ms.is-qmb{background:#f7e9cf;border-color:#d9b578;color:#6b4c12}
   .ms.is-none{background:#f6e2e8;border-color:#d9a3b4;color:#8a3b55}
+  .ms.is-active{background:#dff2e4;border-color:#7fbf94;color:#1e6b3a}
   .dist{display:inline-block;margin-top:7px;margin-right:6px;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:9px;
     padding:1px 8px;cursor:pointer;border:1px solid #a8c4de;background:#e6eef7;color:#2e5580;font-variant-numeric:tabular-nums}
   .dist.unk{background:#f6e2e8;border-color:#d9a3b4;color:#8a3b55}
@@ -108,8 +109,15 @@
   .subform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
   .subform .row .go{background:#e8a13d;color:#2c1f08}
   .subform .row .no,.subform .row .today{background:#e4edf5;color:#3a5a80}
-  .dates{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:7px;font-size:11.5px;color:var(--card-muted)}
+  .dates{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:7px;font-size:11.5px;color:var(--card-muted);cursor:pointer}
   .dates b{color:var(--card-fg);font-variant-numeric:tabular-nums}
+  .dateform{margin-top:7px;display:flex;flex-direction:column;gap:6px}
+  .dateform .dl{font-size:10.5px;font-weight:700;color:#7b93ad;margin-bottom:2px}
+  .dateform input{border:1px solid #c4dbef;border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px;color:#12335F;width:100%;box-sizing:border-box}
+  .dateform .row{display:flex;gap:6px}
+  .dateform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .dateform .row .go{background:#e8a13d;color:#2c1f08}
+  .dateform .row .no{background:#e4edf5;color:#3a5a80}
   .note{margin-top:7px;padding-top:6px;border-top:1px dashed #b7cfe4;font-size:11.5px;color:var(--card-muted);white-space:pre-wrap;line-height:1.4;cursor:pointer}
   .note::before{content:"📝 ";font-size:10.5px}
   .ndate{display:block;font-size:10px;color:#7f97ae;margin-top:2px;font-variant-numeric:tabular-nums;white-space:normal}
@@ -346,6 +354,7 @@ var seeded = false;
 var openForm = null;
 var editNoteKey = null;
 var editSubKey = null;
+var editDatesKey = null;
 var editApprKey = null;
 var editCoKey = null;
 var view = 'board';
@@ -427,7 +436,7 @@ function toBoard(d){
 function revert(){
   data = lastRemote ? clone(lastRemote) : JSON.parse(DEFAULT_JSON);
   approvedArr = lastApproved ? clone(lastApproved) : [];
-  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null;
+  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null;
   render();
 }
 function save(){
@@ -488,7 +497,7 @@ function cardHTML(m, cat){
     + '<div class="cname" data-copy="'+esc(m.n)+'" title="Click to copy name">'+esc(m.n)+'</div>'
     + '<div><div class="cid" data-copy="'+esc(m.id)+'" title="Click to copy ID">'+esc(m.id)+'</div>'
     + (m.ms
-      ? '<span class="ms'+(m.ms==='QMB'?' is-qmb':(m.ms==='None'?' is-none':''))+'" title="Click to change Medicaid status">'+esc(m.ms)+'</span>'
+      ? '<span class="ms'+(m.ms==='QMB'?' is-qmb':(m.ms==='None'?' is-none':(m.ms==='Active'?' is-active':'')))+'" title="Click to change Medicaid status">'+esc(m.ms)+'</span>'
       : '<button class="ms-add" title="Set Medicaid status">+ status</button>')
     + '</div>';
   if(editCoKey===key){
@@ -524,7 +533,14 @@ function cardHTML(m, cat){
     }
   }
   if(isCorr){
-    html += '<div class="dates"><span>Effective <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span></div>';
+    if(editDatesKey===key){
+      html += '<div class="dateform">'
+        + '<div><div class="dl">Effective date (what DFCS has)</div><input class="df-eff" placeholder="M/D/YY" value="'+esc(m.eff||'')+'" autocomplete="off"></div>'
+        + '<div><div class="dl">Date needed</div><input class="df-needed" placeholder="M/D/YY" value="'+esc(m.needed||'')+'" autocomplete="off"></div>'
+        + '<div class="row"><button class="go">Save</button><button class="no">Cancel</button></div></div>';
+    } else {
+      html += '<div class="dates" title="Click to edit the effective and needed dates"><span>Effective <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span></div>';
+    }
   }
   if(editApprKey===key){
     html += '<div class="apform"><div class="ap-label">DFCS approval date</div>'
@@ -589,6 +605,8 @@ function render(){
   if(apInput){ apInput.focus(); apInput.setSelectionRange(apInput.value.length, apInput.value.length); }
   var coInput = document.querySelector('.coform input');
   if(coInput){ coInput.focus(); coInput.setSelectionRange(coInput.value.length, coInput.value.length); }
+  var dfInput = document.querySelector('.dateform input');
+  if(dfInput){ dfInput.focus(); dfInput.setSelectionRange(dfInput.value.length, dfInput.value.length); }
   renderInsights();
 }
 function renderInsights(){
@@ -793,7 +811,7 @@ function openStatusMenu(btn, key){
   if(!found) return;
   var menu = document.createElement('div');
   menu.className = 'movemenu';
-  var opts = ['QMB','SLMB','Full','ABD','None'];
+  var opts = ['QMB','SLMB','Full','ABD','Active','None'];
   menu.innerHTML = '<div class="mm-title">Medicaid status</div>'
     + opts.map(function(o){ return '<button data-ms="'+o+'">'+o+(found.m.ms===o?'  ✓':'')+'</button>'; }).join('')
     + (found.m.ms ? '<button data-ms="">Clear status</button>' : '');
@@ -865,7 +883,7 @@ document.addEventListener('click', function(e){
   if(card){
     var key = card.getAttribute('data-key');
     if(e.target.closest('.ms') || e.target.closest('.ms-add')){ openStatusMenu(e.target.closest('.ms') || e.target.closest('.ms-add'), key); return; }
-    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; render(); return; }
+    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; render(); return; }
     if(e.target.closest('.apform .go')){
       var fa = findMember(key);
       if(fa){
@@ -891,7 +909,7 @@ document.addEventListener('click', function(e){
       if(fu){ delete fu.m.g; save(); render(); showToast(fu.m.n + '  →  escalation list'); }
       return;
     }
-    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; render(); return; }
+    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; editDatesKey = null; render(); return; }
     if(e.target.closest('.coform .go')){
       var fc = findMember(key);
       if(fc){
@@ -910,7 +928,21 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.coform .no')){ editCoKey = null; render(); return; }
     if(e.target.closest('.coform')){ return; }
-    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; render(); return; }
+    if(e.target.closest('.dates')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; render(); return; }
+    if(e.target.closest('.dateform .go')){
+      var fd = findMember(key);
+      if(fd){
+        var ev = card.querySelector('.dateform .df-eff').value.trim();
+        var nv = card.querySelector('.dateform .df-needed').value.trim();
+        fd.m.eff = ev; fd.m.needed = nv;
+        editDatesKey = null; save(); render();
+        showToast('Dates saved  ·  Effective ' + (ev||'—') + '  ·  Needed ' + (nv||'—'));
+      }
+      return;
+    }
+    if(e.target.closest('.dateform .no')){ editDatesKey = null; render(); return; }
+    if(e.target.closest('.dateform')){ return; }
+    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; editDatesKey = null; render(); return; }
     if(e.target.closest('.subform .today')){
       var fs = findMember(key);
       if(fs){ fs.m.sub = todayStr(); editSubKey = null; save(); render(); showToast('Submitted to DFCS ' + fs.m.sub); }
@@ -928,7 +960,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.subform .no')){ editSubKey = null; render(); return; }
     if(e.target.closest('.subform')){ return; }
-    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; render(); return; }
+    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; editDatesKey = null; render(); return; }
     if(e.target.closest('.noteform .go')){
       var f = findMember(key);
       if(f){
@@ -1032,7 +1064,12 @@ document.addEventListener('keydown', function(e){
     var cgo = cc && cc.querySelector('.coform .go');
     if(cgo) cgo.click();
   }
-  if(e.key==='Escape'){ closeMenus(); document.getElementById('signPanel').style.display='none'; if(openForm || editNoteKey || editSubKey || editApprKey || editCoKey){ openForm=null; editNoteKey=null; editSubKey=null; editApprKey=null; editCoKey=null; render(); } }
+  if(e.key==='Enter' && e.target.closest && e.target.closest('.dateform')){
+    var dc = e.target.closest('.card');
+    var dgo = dc && dc.querySelector('.dateform .go');
+    if(dgo) dgo.click();
+  }
+  if(e.key==='Escape'){ closeMenus(); document.getElementById('signPanel').style.display='none'; if(openForm || editNoteKey || editSubKey || editApprKey || editCoKey || editDatesKey){ openForm=null; editNoteKey=null; editSubKey=null; editApprKey=null; editCoKey=null; editDatesKey=null; render(); } }
 });
 (function(){
   var dl = document.getElementById('gaCounties');
