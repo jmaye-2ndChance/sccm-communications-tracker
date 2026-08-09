@@ -95,6 +95,10 @@
   .sub-add{display:none;margin-top:7px;font-size:10px;font-weight:600;border-radius:9px;padding:1px 8px;cursor:pointer;
     background:none;border:1px dashed #b7cde2;color:#7b93ad;font-family:inherit}
   .card:hover .sub-add{display:inline-block}
+  .dates-add{display:none;margin-top:7px;font-size:10px;font-weight:600;border-radius:9px;padding:1px 8px;cursor:pointer;
+    background:none;border:1px dashed #b7cde2;color:#7b93ad;font-family:inherit}
+  .card:hover .dates-add{display:inline-block}
+  .dates .dpen{color:#9db4cc;font-size:10.5px}
   .sendline{font-size:11px;color:#8fa9c6;margin:-4px 0 8px;padding-left:16px}
   .sendline b{color:#d8e6f5}
   .elig{display:inline-block;margin-top:7px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:10px}
@@ -201,6 +205,9 @@
   .tavg{font-size:13px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
   .tmon{font-size:11.5px;color:var(--muted);font-weight:600}
   .tn{font-size:10.5px;color:#7d95b8}
+  .tgroup{font-family:'Nunito',sans-serif;font-weight:800;font-size:12.5px;color:#f2c98a;margin:14px 0 2px;padding-top:10px;border-top:1px solid var(--hairline)}
+  .tgroup:first-of-type{margin-top:2px;padding-top:0;border-top:none}
+  .tgroup .tgsub{font-weight:600;font-size:11.5px;color:var(--muted);margin-left:8px}
   .wtable{width:100%;border-collapse:collapse;font-size:12.5px}
   .wtable th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:4px 8px;border-bottom:1px solid var(--hairline)}
   .wtable td{padding:6px 8px;border-bottom:1px dashed var(--hairline);color:#eaf1fb}
@@ -213,7 +220,7 @@
   .coltag .mdot2{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
   .emptymsg{color:var(--muted);font-size:12.5px;padding:6px 0}
   @media (max-width:1280px){ .board{grid-template-columns:repeat(3,minmax(0,1fr))} .stats{grid-template-columns:repeat(3,minmax(0,1fr))} }
-  @media (max-width:760px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} .stats{grid-template-columns:repeat(2,minmax(0,1fr))} .wrap{padding:18px 14px 32px} .acts{display:flex} .ms-add{display:inline-block} .sub-add{display:inline-block} .co-add{display:inline-block} .bacts{visibility:visible} .brow{grid-template-columns:1fr} .bacts{justify-content:flex-end} }
+  @media (max-width:760px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} .stats{grid-template-columns:repeat(2,minmax(0,1fr))} .wrap{padding:18px 14px 32px} .acts{display:flex} .ms-add{display:inline-block} .sub-add{display:inline-block} .co-add{display:inline-block} .dates-add{display:inline-block} .bacts{visibility:visible} .brow{grid-template-columns:1fr} .bacts{justify-content:flex-end} }
   @media (max-width:480px){ .board{grid-template-columns:1fr} }
 </style>
 </head>
@@ -532,14 +539,16 @@ function cardHTML(m, cat){
       }
     }
   }
-  if(isCorr){
+  if(isCorr || m.eff || m.needed){
     if(editDatesKey===key){
       html += '<div class="dateform">'
         + '<div><div class="dl">Effective date (what DFCS has)</div><input class="df-eff" placeholder="M/D/YY" value="'+esc(m.eff||'')+'" autocomplete="off"></div>'
         + '<div><div class="dl">Date needed</div><input class="df-needed" placeholder="M/D/YY" value="'+esc(m.needed||'')+'" autocomplete="off"></div>'
         + '<div class="row"><button class="go">Save</button><button class="no">Cancel</button></div></div>';
+    } else if(m.eff || m.needed){
+      html += '<div class="dates" title="Click to edit the effective and needed dates"><span>Effective <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span><span class="dpen">&#9998; edit</span></div>';
     } else {
-      html += '<div class="dates" title="Click to edit the effective and needed dates"><span>Effective <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span></div>';
+      html += '<div><button class="dates-add" title="Enter the effective date DFCS has on file and the date the member actually needs">+ Effective / needed dates</button></div>';
     }
   }
   if(editApprKey===key){
@@ -616,11 +625,6 @@ function renderInsights(){
   var timed = recs.filter(function(x){ return x.d !== null; });
   var dsList = timed.map(function(x){ return x.d; }).sort(function(a,b){ return a-b; });
   var avg = dsList.length ? Math.round(dsList.reduce(function(a,b){ return a+b; },0)/dsList.length) : null;
-  var med = null;
-  if(dsList.length){
-    var mi = Math.floor(dsList.length/2);
-    med = dsList.length % 2 ? dsList[mi] : Math.round((dsList[mi-1]+dsList[mi])/2);
-  }
   var waiting = [];
   var nosub = 0;
   data.categories.forEach(function(c){
@@ -631,14 +635,13 @@ function renderInsights(){
   });
   waiting.sort(function(a,b){ return b.d - a.d; });
   var tiles = [
-    {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B'},
-    {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0'},
-    {label:'Median days to approval', value:med===null?'—':med, accent:'#D9B578'},
-    {label:'Fastest / slowest', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC'},
-    {label:'Waiting on DFCS now', value:waiting.length, accent:'#D69A4E'}
+    {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B', tip:'Everyone marked approved with the green check'},
+    {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date'},
+    {label:'Fastest / slowest approval', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC', tip:'Quickest and longest approval so far, in days'},
+    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet'}
   ];
   var html = '<div class="stats">' + tiles.map(function(s){
-    return '<div class="stat"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
+    return '<div class="stat" title="'+esc(s.tip)+'"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
   }).join('') + '</div>';
   function distOf(co){
     var ci = co ? countyInfo(co) : null;
@@ -646,12 +649,6 @@ function renderInsights(){
     return ci.d ? String(ci.d) : 'unk';
   }
   function avgOf(list){ return list.length ? Math.round(list.reduce(function(a,b){ return a+b; },0)/list.length) : null; }
-  function medOf(list){
-    if(!list.length) return null;
-    var s2 = list.slice().sort(function(a,b){ return a-b; });
-    var mi2 = Math.floor(s2.length/2);
-    return s2.length % 2 ? s2[mi2] : Math.round((s2[mi2-1]+s2[mi2])/2);
-  }
   var dmap = {};
   function drow(k){ if(!dmap[k]) dmap[k] = {apprAll:0, days:[], wait:[]}; return dmap[k]; }
   recs.forEach(function(x){
@@ -661,50 +658,37 @@ function renderInsights(){
   });
   waiting.forEach(function(w){ drow(distOf(w.m.co)).wait.push(w.d); });
   var anyCounty = Object.keys(dmap).some(function(k){ return k !== 'none'; });
-  html += '<div class="ipanel"><h3>Approvals by district</h3><div class="isub">Which DFCS district takes the longest &mdash; days from submission to approval per district, slowest first. Districts with no approvals yet are ranked by how long their members have been waiting.</div>';
+  function dOrder(k){ return k==='none' ? 99 : (k==='unk' ? 98 : +k); }
+  function dlabel(k){ return k==='unk' ? 'County not in district table' : (k==='none' ? 'No county set' : 'District '+k); }
+  function dchipHTML(k){ return k==='unk' || k==='none' ? '<span class="dchip unk">D?</span>' : '<span class="dchip">D'+k+'</span>'; }
+  html += '<div class="ipanel"><h3>Approvals by district</h3><div class="isub">Total approvals per DFCS district since we started tracking, with the average days from submission to approval. &ldquo;Submitted, not approved&rdquo; counts members on the board today still waiting on DFCS.</div>';
   if(!anyCounty){
     html += '<div class="emptymsg">No counties set yet. Click + county on a card to place members in their DFCS district &mdash; district breakdowns will show up here.</div>';
   } else {
-    var dkeys = Object.keys(dmap);
-    var drows = dkeys.map(function(k){
+    var drows = Object.keys(dmap).map(function(k){
       var rw = dmap[k];
-      return {k:k, apprAll:rw.apprAll, avgA:avgOf(rw.days), medA:medOf(rw.days), nA:rw.days.length,
-        nW:rw.wait.length, avgW:avgOf(rw.wait), maxW:rw.wait.length ? Math.max.apply(null, rw.wait) : null};
+      return {k:k, apprAll:rw.apprAll, avgA:avgOf(rw.days), nA:rw.days.length,
+        nW:rw.wait.length, maxW:rw.wait.length ? Math.max.apply(null, rw.wait) : null};
     });
-    drows.sort(function(a,b){
-      var sa = a.k==='none' ? 2 : (a.k==='unk' ? 1 : 0), sb = b.k==='none' ? 2 : (b.k==='unk' ? 1 : 0);
-      if(sa !== sb) return sa - sb;
-      if(a.avgA !== null || b.avgA !== null){
-        if(a.avgA === null) return 1;
-        if(b.avgA === null) return -1;
-        if(b.avgA !== a.avgA) return b.avgA - a.avgA;
-      }
-      return (b.avgW||0) - (a.avgW||0);
-    });
-    var slow = drows.filter(function(r){ return r.avgA !== null && r.k !== 'unk' && r.k !== 'none'; })[0];
-    if(slow){
-      html += '<div class="slowline">Slowest so far: District '+slow.k+' &middot; '+slow.avgA+' day'+(slow.avgA===1?'':'s')+' average to approval</div>';
-    }
-    var maxA = Math.max.apply(null, drows.map(function(r){ return r.avgA||0; })) || 1;
-    var maxWt = Math.max.apply(null, drows.map(function(r){ return r.avgW||0; })) || 1;
-    function dlabel(k){ return k==='unk' ? 'County not in district table' : (k==='none' ? 'No county set' : 'District '+k); }
-    function dchipHTML(k){ return k==='unk' || k==='none' ? '<span class="dchip unk">D?</span>' : '<span class="dchip">D'+k+'</span>'; }
-    html += '<table class="wtable"><tr><th>District</th><th>Approved</th><th>Avg days to approval</th><th>Median</th><th>Waiting now</th><th>Avg wait so far</th><th>Longest current wait</th></tr>'
+    drows.sort(function(a,b){ return dOrder(a.k) - dOrder(b.k); });
+    var most = drows.filter(function(r){ return r.k!=='unk' && r.k!=='none' && r.apprAll; }).sort(function(a,b){ return b.apprAll - a.apprAll; })[0];
+    var slow = drows.filter(function(r){ return r.avgA !== null && r.k !== 'unk' && r.k !== 'none'; }).sort(function(a,b){ return b.avgA - a.avgA; })[0];
+    var line = [];
+    if(most) line.push('Most approvals: District '+most.k+' ('+most.apprAll+')');
+    if(slow) line.push('Slowest to approve: District '+slow.k+' ('+slow.avgA+' day'+(slow.avgA===1?'':'s')+' average)');
+    if(line.length) html += '<div class="slowline">'+line.join(' &nbsp;&middot;&nbsp; ')+'</div>';
+    var maxCt = Math.max.apply(null, drows.map(function(r){ return r.apprAll||0; })) || 1;
+    html += '<table class="wtable"><tr><th>District</th><th>Total approved</th><th>Avg days to approval</th><th>Submitted, not approved</th><th>Longest current wait</th></tr>'
       + drows.map(function(r){
-        var aCell = r.avgA === null
-          ? '<span class="mut">&mdash;</span>'
-          : '<div class="dbarwrap"><div class="dbar" style="width:'+Math.max(4, Math.round(r.avgA/maxA*100))+'px"></div><b>'+r.avgA+'</b></div>';
-        var wCell = r.avgW === null
-          ? '<span class="mut">&mdash;</span>'
-          : '<div class="dbarwrap"><div class="dbar blue" style="width:'+Math.max(4, Math.round(r.avgW/maxWt*100))+'px"></div><b>'+r.avgW+'</b></div>';
+        var cCell = r.apprAll
+          ? '<div class="dbarwrap"><div class="dbar" style="width:'+Math.max(4, Math.round(r.apprAll/maxCt*100))+'px"></div><b>'+r.apprAll+'</b>'+(r.nA < r.apprAll ? ' <span class="mut">('+r.nA+' timed)</span>' : '')+'</div>'
+          : '<span class="mut">&mdash;</span>';
         var mxCell = r.maxW === null ? '<td class="mut">&mdash;</td>'
           : '<td><span class="agebadge '+(r.maxW>=60?'late':(r.maxW>=30?'warn':'ok'))+'">'+r.maxW+(r.maxW===1?' day':' days')+'</span></td>';
         return '<tr><td>'+dchipHTML(r.k)+' '+esc(dlabel(r.k))+'</td>'
-          + '<td class="mut">'+(r.apprAll || '&mdash;')+(r.apprAll && r.nA < r.apprAll ? ' <span class="mut">('+r.nA+' timed)</span>' : '')+'</td>'
-          + '<td>'+aCell+'</td>'
-          + '<td class="mut">'+(r.medA===null?'&mdash;':r.medA)+'</td>'
+          + '<td>'+cCell+'</td>'
+          + '<td class="mut">'+(r.avgA===null?'&mdash;':'<b>'+r.avgA+'</b>'+(r.avgA===1?' day':' days'))+'</td>'
           + '<td class="mut">'+(r.nW || '&mdash;')+'</td>'
-          + '<td>'+wCell+'</td>'
           + mxCell + '</tr>';
       }).join('') + '</table>';
   }
@@ -714,11 +698,27 @@ function renderInsights(){
     return y - x;
   });
   var maxd = dsList.length ? dsList[dsList.length-1] : 0;
-  html += '<div class="ipanel"><h3>Time to approval</h3><div class="isub">Days from the DFCS submitted date to approval &middot; newest approval first &middot; hover a row to undo</div>';
+  html += '<div class="ipanel"><h3>Time to approval, by district</h3><div class="isub">Days from the DFCS submitted date to approval, grouped by district &middot; newest approval first within each district &middot; hover a row to undo</div>';
   if(!byNew.length){
     html += '<div class="emptymsg">No approvals logged yet. When DFCS approves a member, hover their card on the board and click the green &#10003; &mdash; their approval time will show up here.</div>';
   } else {
-    html += byNew.map(function(x){
+    var tgroups = {};
+    byNew.forEach(function(x){
+      var gk = distOf(x.r.co);
+      if(!tgroups[gk]) tgroups[gk] = [];
+      tgroups[gk].push(x);
+    });
+    var gkeys = Object.keys(tgroups).sort(function(a,b){ return dOrder(a) - dOrder(b); });
+    html += gkeys.map(function(gk){
+      var list = tgroups[gk];
+      var gdays = list.map(function(x){ return x.d; }).filter(function(d){ return d !== null; });
+      var gavg = gdays.length ? Math.round(gdays.reduce(function(a,b){ return a+b; },0)/gdays.length) : null;
+      var head = '<div class="tgroup">'+dchipHTML(gk)+' '+esc(dlabel(gk))
+        + '<span class="tgsub">'+list.length+' approved'+(gavg!==null ? ' &middot; avg '+gavg+' day'+(gavg===1?'':'s') : '')+'</span></div>';
+      return head + list.map(rowHTML).join('');
+    }).join('');
+  }
+  function rowHTML(x){
       var r = x.r;
       var pct = (x.d !== null && maxd > 0) ? Math.max(2, Math.round(x.d / maxd * 100)) : 0;
       var barCell;
@@ -730,7 +730,7 @@ function renderInsights(){
       var dtag = '';
       if(r.co){
         var ci3 = countyInfo(r.co);
-        dtag = ' <span class="bi">&middot; '+(ci3.d ? 'D'+ci3.d : 'D?')+' '+esc(ci3.name)+'</span>';
+        dtag = ' <span class="bi">&middot; '+esc(ci3.name)+'</span>';
       }
       return '<div class="brow">'
         + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+dtag+'</div>'
@@ -739,29 +739,32 @@ function renderInsights(){
         + '<div class="bacts"><button class="undo" data-ai="'+x.i+'" title="Send back to the board">&#8617; Undo</button>'
         + '<button class="adel danger" data-ai="'+x.i+'" title="Delete from approval history">&times;</button></div>'
         + '</div>';
-    }).join('');
   }
   html += '</div>';
-  if(timed.length){
+  var withMonth = recs.filter(function(x){ return x.at; });
+  if(withMonth.length){
     var byMonth = {};
-    timed.forEach(function(x){
-      if(!x.at) return;
+    withMonth.forEach(function(x){
       var k = x.at.getFullYear()*100 + x.at.getMonth();
-      if(!byMonth[k]) byMonth[k] = {sum:0, n:0};
-      byMonth[k].sum += x.d; byMonth[k].n++;
+      if(!byMonth[k]) byMonth[k] = {n:0, sum:0, nt:0};
+      byMonth[k].n++;
+      if(x.d !== null){ byMonth[k].sum += x.d; byMonth[k].nt++; }
     });
     var mkeys = Object.keys(byMonth).map(Number).sort(function(a,b){ return a-b; });
-    var mavgs = mkeys.map(function(k){ return {k:k, avg:Math.round(byMonth[k].sum/byMonth[k].n), n:byMonth[k].n}; });
-    var maxavg = Math.max.apply(null, mavgs.map(function(x){ return x.avg; })) || 1;
-    html += '<div class="ipanel"><h3>Monthly trend</h3><div class="isub">Average days to approval, grouped by the month the approval came through</div><div class="trend">'
-      + mavgs.map(function(x){
-        var h = Math.max(6, Math.round(x.avg / maxavg * 110));
-        return '<div class="tcol"><span class="tavg">'+x.avg+'</span><div class="tbar" style="height:'+h+'px"></div>'
+    var mrows = mkeys.map(function(k){
+      var b = byMonth[k];
+      return {k:k, n:b.n, avg:b.nt ? Math.round(b.sum/b.nt) : null};
+    });
+    var maxn = Math.max.apply(null, mrows.map(function(x){ return x.n; })) || 1;
+    html += '<div class="ipanel"><h3>Approvals per month</h3><div class="isub">How many members were approved each month &middot; the small line under each bar is that month&rsquo;s average days to approval</div><div class="trend">'
+      + mrows.map(function(x){
+        var h = Math.max(6, Math.round(x.n / maxn * 110));
+        return '<div class="tcol"><span class="tavg">'+x.n+'</span><div class="tbar" style="height:'+h+'px"></div>'
           + '<span class="tmon">'+MONTH_NAMES[x.k%100]+' &rsquo;'+String(Math.floor(x.k/100)).slice(-2)+'</span>'
-          + '<span class="tn">'+x.n+(x.n===1?' approval':' approvals')+'</span></div>';
+          + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s'))+'</span></div>';
       }).join('') + '</div></div>';
   }
-  html += '<div class="ipanel"><h3>Still waiting on DFCS</h3><div class="isub">Everyone on the board with a DFCS submitted date, longest wait first &middot; amber at 30 days, red at 60</div>';
+  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60</div>';
   if(!waiting.length){
     html += '<div class="emptymsg">Nobody on the board has a DFCS submitted date yet. Set one with the + DFCS date button on a card and they will be timed here.</div>';
   } else {
@@ -865,8 +868,14 @@ function openMoveMenu(btn, key){
     if(m.sub) moved.sub = m.sub;
     if(m.note){ moved.note = m.note; if(m.noteDate) moved.noteDate = m.noteDate; }
     if(o.g) moved.g = o.g;
+    if(m.eff) moved.eff = m.eff;
+    if(m.needed) moved.needed = m.needed;
     if(o.cid==='corrdate'){ moved.eff = m.eff||''; moved.needed = m.needed||''; }
     dest.members.push(moved);
+    if(o.cid==='corrdate' && !moved.eff && !moved.needed){
+      editDatesKey = 'corrdate|'+moved.n+'|'+moved.id;
+      editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null;
+    }
     save(); closeMenus(); render();
     showToast(m.n + '  →  ' + (o.g ? o.label : dest.name));
   });
@@ -928,7 +937,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.coform .no')){ editCoKey = null; render(); return; }
     if(e.target.closest('.coform')){ return; }
-    if(e.target.closest('.dates')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; render(); return; }
+    if(e.target.closest('.dates') || e.target.closest('.dates-add')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; render(); return; }
     if(e.target.closest('.dateform .go')){
       var fd = findMember(key);
       if(fd){
