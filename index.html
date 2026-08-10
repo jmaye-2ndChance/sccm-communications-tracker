@@ -172,6 +172,8 @@
   .apform{margin-top:7px;display:flex;flex-direction:column;gap:6px}
   .apform .ap-label{font-size:11px;font-weight:700;color:#2f6b44}
   .apform input{border:1px solid #a9c9b2;border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px;color:#12335F;width:100%;box-sizing:border-box}
+  .apform .ap-fix{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:#2f6b44;cursor:pointer}
+  .apform .ap-fix input{width:auto;margin:0;accent-color:#2f8a4e}
   .apform .row{display:flex;gap:6px}
   .apform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
   .apform .row .go{background:#2f8a4e;color:#fff}
@@ -522,7 +524,7 @@ function cardHTML(m, cat){
       + '<div class="row"><button class="today">Today</button><button class="go">Save</button><button class="no">Cancel</button></div></div>';
   } else if(m.sub){
     var sdn = daysSince(m.sub);
-    var ageCls = sdn === null ? '' : (sdn >= 60 ? ' late' : (sdn >= 30 ? ' warn' : ''));
+    var ageCls = (sdn === null || isCorr) ? '' : (sdn >= 60 ? ' late' : (sdn >= 30 ? ' warn' : ''));
     html += '<div><span class="sub'+ageCls+'" title="Click to edit the date submitted to DFCS">DFCS '+esc(m.sub)+subDays(m.sub)+'</span></div>';
   } else {
     html += '<div><button class="sub-add" title="Set the date this was submitted to DFCS">+ DFCS date</button></div>';
@@ -554,6 +556,7 @@ function cardHTML(m, cat){
   if(editApprKey===key){
     html += '<div class="apform"><div class="ap-label">DFCS approval date</div>'
       + '<input class="ap-date" value="'+esc(todayStr())+'" autocomplete="off">'
+      + '<label class="ap-fix" title="Logs the approval with correct timing, then keeps a card in Need Corrected Approval Date to track the fix"><input type="checkbox" class="ap-needsfix">Needs corrected approval date</label>'
       + '<div class="row"><button class="go">&#10003; Approve</button><button class="no">Cancel</button></div></div>';
   }
   if(editNoteKey===key){
@@ -628,6 +631,7 @@ function renderInsights(){
   var waiting = [];
   var nosub = 0;
   data.categories.forEach(function(c){
+    if(c.id==='corrdate') return;
     c.members.forEach(function(m){
       var d = daysSince(m.sub);
       if(m.sub && d !== null) waiting.push({m:m, c:c, d:d}); else nosub++;
@@ -638,7 +642,7 @@ function renderInsights(){
     {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B', tip:'Everyone marked approved with the green check'},
     {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date'},
     {label:'Fastest / slowest approval', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC', tip:'Quickest and longest approval so far, in days'},
-    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet'}
+    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet. Need Corrected Approval Date members are already approved, so they are not counted.'}
   ];
   var html = '<div class="stats">' + tiles.map(function(s){
     return '<div class="stat" title="'+esc(s.tip)+'"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
@@ -764,7 +768,7 @@ function renderInsights(){
           + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s'))+'</span></div>';
       }).join('') + '</div></div>';
   }
-  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60</div>';
+  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60 &middot; Need Corrected Approval Date members are already approved and not counted here</div>';
   if(!waiting.length){
     html += '<div class="emptymsg">Nobody on the board has a DFCS submitted date yet. Set one with the + DFCS date button on a card and they will be timed here.</div>';
   } else {
@@ -903,11 +907,23 @@ document.addEventListener('click', function(e){
         if(fa.m.co) rec.co = fa.m.co;
         if(fa.m.sub) rec.sub = fa.m.sub;
         if(fa.m.note){ rec.note = fa.m.note; if(fa.m.noteDate) rec.noteDate = fa.m.noteDate; }
+        var fixBox = card.querySelector('.ap-needsfix');
+        var needsFix = fixBox && fixBox.checked;
         fa.cat.members.splice(fa.idx,1);
         approvedArr.push(rec);
+        if(needsFix){
+          var cdCat = data.categories.find(function(c){ return c.id==='corrdate'; });
+          var kept = {n:fa.m.n, id:fa.m.id, eff:'', needed:''};
+          if(fa.m.ms) kept.ms = fa.m.ms;
+          if(fa.m.co) kept.co = fa.m.co;
+          if(fa.m.sub) kept.sub = fa.m.sub;
+          if(fa.m.note){ kept.note = fa.m.note; if(fa.m.noteDate) kept.noteDate = fa.m.noteDate; }
+          cdCat.members.push(kept);
+          editDatesKey = 'corrdate|'+kept.n+'|'+kept.id;
+        }
         editApprKey = null; saveAll(); render();
         var dd = apprDays(rec);
-        showToast('✓ ' + rec.n + ' approved' + (dd === null ? '' : '  ·  ' + dd + (dd===1?' day':' days') + ' after DFCS submission'));
+        showToast('✓ ' + rec.n + ' approved' + (dd === null ? '' : '  ·  ' + dd + (dd===1?' day':' days') + ' after DFCS submission') + (needsFix ? '  ·  kept in Need Corrected Approval Date' : ''));
       }
       return;
     }
@@ -1017,6 +1033,7 @@ document.addEventListener('click', function(e){
         if(rec2.co) back.co = rec2.co;
         if(rec2.sub) back.sub = rec2.sub;
         if(rec2.note){ back.note = rec2.note; if(rec2.noteDate) back.noteDate = rec2.noteDate; }
+        data.categories.forEach(function(c){ c.members = c.members.filter(function(mm){ return !(mm.n===rec2.n && mm.id===rec2.id); }); });
         destc.members.push(back);
         approvedArr.splice(ai,1);
         saveAll(); render();
