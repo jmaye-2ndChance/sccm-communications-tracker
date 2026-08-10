@@ -595,7 +595,25 @@ function render(){
     var main = sorted.filter(function(m){ return !m.g; });
     var gNames = sorted.filter(function(m){ return m.g; }).map(function(m){ return m.g; })
       .filter(function(v,i,a){ return a.indexOf(v)===i; });
-    var cards = main.map(function(m){ return cardHTML(m,c); }).join('');
+    var cards;
+    if(c.id==='awaiting'){
+      var dgroups = {};
+      main.forEach(function(m){
+        var ci0 = m.co ? countyInfo(m.co) : null;
+        var dk0 = ci0 && ci0.d ? String(ci0.d) : 'unk';
+        if(!dgroups[dk0]) dgroups[dk0] = [];
+        dgroups[dk0].push(m);
+      });
+      cards = Object.keys(dgroups).sort(function(a,b){
+        return (a==='unk' ? 99 : +a) - (b==='unk' ? 99 : +b);
+      }).map(function(dk0){
+        var lbl0 = dk0==='unk' ? 'No district set' : 'District '+dk0;
+        return '<div class="grouplabel">'+lbl0+' &middot; '+dgroups[dk0].length+'</div>'
+          + dgroups[dk0].map(function(m){ return cardHTML(m,c); }).join('');
+      }).join('');
+    } else {
+      cards = main.map(function(m){ return cardHTML(m,c); }).join('');
+    }
     gNames.forEach(function(g){
       cards += '<div class="grouplabel">'+esc(g)+'</div>'
         + sorted.filter(function(m){ return m.g===g; }).map(function(m){ return cardHTML(m,c); }).join('');
