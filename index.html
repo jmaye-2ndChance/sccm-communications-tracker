@@ -207,9 +207,14 @@
   .tavg{font-size:13px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
   .tmon{font-size:11.5px;color:var(--muted);font-weight:600}
   .tn{font-size:10.5px;color:#7d95b8}
-  .tgroup{font-family:'Nunito',sans-serif;font-weight:800;font-size:12.5px;color:#f2c98a;margin:14px 0 2px;padding-top:10px;border-top:1px solid var(--hairline)}
-  .tgroup:first-of-type{margin-top:2px;padding-top:0;border-top:none}
-  .tgroup .tgsub{font-weight:600;font-size:11.5px;color:var(--muted);margin-left:8px}
+  .dtabs{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 14px}
+  .dtab{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#cfdff2;border-radius:9px;padding:6px 12px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;line-height:1.3}
+  .dtab:hover{border-color:rgba(255,255,255,.4);color:#fff}
+  .dtab.on{background:#e8a13d;border-color:#e8a13d;color:#2c1f08}
+  .dtab .dtn{font-size:10.5px;font-weight:800;background:rgba(255,255,255,.16);border-radius:8px;padding:1px 7px;font-variant-numeric:tabular-nums}
+  .dtab.on .dtn{background:rgba(0,0,0,.15)}
+  .dsummary{display:flex;gap:6px 20px;flex-wrap:wrap;font-size:12px;color:#8fa9c6;margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid var(--hairline)}
+  .dsummary b{color:#fff;font-variant-numeric:tabular-nums}
   .wtable{width:100%;border-collapse:collapse;font-size:12.5px}
   .wtable th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:4px 8px;border-bottom:1px solid var(--hairline)}
   .wtable td{padding:6px 8px;border-bottom:1px dashed var(--hairline);color:#eaf1fb}
@@ -364,6 +369,7 @@ var openForm = null;
 var editNoteKey = null;
 var editSubKey = null;
 var editDatesKey = null;
+var insightsDist = null;
 var editApprKey = null;
 var editCoKey = null;
 var view = 'board';
@@ -702,7 +708,7 @@ function renderInsights(){
     return y - x;
   });
   var maxd = dsList.length ? dsList[dsList.length-1] : 0;
-  html += '<div class="ipanel"><h3>Time to approval, by district</h3><div class="isub">Days from the DFCS submitted date to approval, grouped by district &middot; newest approval first within each district &middot; hover a row to undo</div>';
+  html += '<div class="ipanel"><h3>Time to approval, by district</h3><div class="isub">Pick a district to see how long each member&rsquo;s approval took &middot; newest approval first &middot; hover a row to undo</div>';
   if(!byNew.length){
     html += '<div class="emptymsg">No approvals logged yet. When DFCS approves a member, hover their card on the board and click the green &#10003; &mdash; their approval time will show up here.</div>';
   } else {
@@ -713,18 +719,27 @@ function renderInsights(){
       tgroups[gk].push(x);
     });
     var gkeys = Object.keys(tgroups).sort(function(a,b){ return dOrder(a) - dOrder(b); });
-    html += gkeys.map(function(gk){
-      var list = tgroups[gk];
-      var gdays = list.map(function(x){ return x.d; }).filter(function(d){ return d !== null; });
-      var gavg = gdays.length ? Math.round(gdays.reduce(function(a,b){ return a+b; },0)/gdays.length) : null;
-      var head = '<div class="tgroup">'+dchipHTML(gk)+' '+esc(dlabel(gk))
-        + '<span class="tgsub">'+list.length+' approved'+(gavg!==null ? ' &middot; avg '+gavg+' day'+(gavg===1?'':'s') : '')+'</span></div>';
-      return head + list.map(rowHTML).join('');
-    }).join('');
+    if(!insightsDist || !tgroups[insightsDist]) insightsDist = gkeys[0];
+    html += '<div class="dtabs">' + gkeys.map(function(gk){
+      var lbl = gk==='unk' ? 'D?' : (gk==='none' ? 'No county' : 'District '+gk);
+      return '<button class="dtab'+(gk===insightsDist?' on':'')+'" data-dk="'+gk+'" title="Show '+esc(dlabel(gk))+'">'+lbl+'<span class="dtn">'+tgroups[gk].length+'</span></button>';
+    }).join('') + '</div>';
+    var list = tgroups[insightsDist];
+    var gdays = list.map(function(x){ return x.d; }).filter(function(d){ return d !== null; });
+    var gavg = gdays.length ? Math.round(gdays.reduce(function(a,b){ return a+b; },0)/gdays.length) : null;
+    var gmax = gdays.length ? Math.max.apply(null, gdays) : 0;
+    var gmin = gdays.length ? Math.min.apply(null, gdays) : 0;
+    var untimed = list.length - gdays.length;
+    html += '<div class="dsummary"><span><b>'+list.length+'</b> approved</span>'
+      + (gavg!==null ? '<span>average <b>'+gavg+'</b> day'+(gavg===1?'':'s')+'</span><span>fastest <b>'+gmin+'</b></span><span>slowest <b>'+gmax+'</b></span>' : '')
+      + (untimed ? '<span><b>'+untimed+'</b> not timed (no DFCS date)</span>' : '')
+      + '</div>';
+    html += list.map(function(x){ return rowHTML(x, gmax); }).join('');
   }
-  function rowHTML(x){
+  function rowHTML(x, localMax){
       var r = x.r;
-      var pct = (x.d !== null && maxd > 0) ? Math.max(2, Math.round(x.d / maxd * 100)) : 0;
+      var scale = localMax || maxd;
+      var pct = (x.d !== null && scale > 0) ? Math.max(2, Math.round(x.d / scale * 100)) : 0;
       var barCell;
       if(x.d !== null){
         barCell = '<div class="bfill" style="width:'+pct+'%"></div><span class="bdays">'+x.d+(x.d===1?' day':' days')+'</span>';
@@ -1021,6 +1036,8 @@ document.addEventListener('click', function(e){
       return;
     }
   }
+  var dtb = e.target.closest('button[data-dk]');
+  if(dtb){ insightsDist = dtb.getAttribute('data-dk'); renderInsights(); return; }
   var ib = e.target.closest('button[data-ai]');
   if(ib){
     var ai = +ib.getAttribute('data-ai');
