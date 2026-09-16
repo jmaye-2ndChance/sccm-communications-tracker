@@ -124,6 +124,24 @@
   .dateform .row .no{background:#e4edf5;color:#3a5a80}
   .note{margin-top:7px;padding-top:6px;border-top:1px dashed #b7cfe4;font-size:11.5px;color:var(--card-muted);white-space:pre-wrap;line-height:1.4;cursor:pointer}
   .note::before{content:"📝 ";font-size:10.5px}
+  .note .nline{display:block;padding-left:2px}
+  .note .nline+.nline{margin-top:3px;padding-top:3px;border-top:1px dotted #cfe0ef}
+  .note .ntog{display:inline-block;margin-top:4px;border:none;background:none;color:#5e7fa3;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline}
+  .note .ntog:hover{color:#12335F}
+  .mid{display:inline-block;margin-top:7px;margin-right:2px;font-size:10.5px;font-weight:700;letter-spacing:.01em;border-radius:9px;
+    padding:1px 8px;cursor:pointer;border:1px solid #b3c7db;background:#eaf0f6;color:#3c5a7a;font-variant-numeric:tabular-nums}
+  .mid-edit{display:none;border:none;background:none;color:#7b93ad;font-size:10px;cursor:pointer;padding:0 2px;font-family:inherit;vertical-align:1px}
+  .card:hover .mid-edit{display:inline-block}
+  .mid-add{display:none;margin-top:7px;margin-right:6px;font-size:10px;font-weight:600;border-radius:9px;padding:1px 8px;cursor:pointer;
+    background:none;border:1px dashed #b7cde2;color:#7b93ad;font-family:inherit}
+  .card:hover .mid-add{display:inline-block}
+  .midform{margin-top:7px;display:flex;flex-direction:column;gap:6px}
+  .midform input{border:1px solid #c4dbef;border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px;color:#12335F;width:100%;box-sizing:border-box}
+  .midform .row{display:flex;gap:6px}
+  .midform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .midform .row .go{background:#e8a13d;color:#2c1f08}
+  .midform .row .no{background:#e4edf5;color:#3a5a80}
+  .tmid{display:block;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
   .ndate{display:block;font-size:10px;color:#7f97ae;margin-top:2px;font-variant-numeric:tabular-nums;white-space:normal}
   .noteform{margin-top:7px;display:flex;flex-direction:column;gap:5px}
   .noteform textarea{border:1px solid #b3cce4;border-radius:7px;padding:6px 8px;font:inherit;font-size:12px;color:#12335F;
@@ -227,7 +245,7 @@
   .coltag .mdot2{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
   .emptymsg{color:var(--muted);font-size:12.5px;padding:6px 0}
   @media (max-width:1280px){ .board{grid-template-columns:repeat(3,minmax(0,1fr))} .stats{grid-template-columns:repeat(3,minmax(0,1fr))} }
-  @media (max-width:760px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} .stats{grid-template-columns:repeat(2,minmax(0,1fr))} .wrap{padding:18px 14px 32px} .acts{display:flex} .ms-add{display:inline-block} .sub-add{display:inline-block} .co-add{display:inline-block} .dates-add{display:inline-block} .bacts{visibility:visible} .brow{grid-template-columns:1fr} .bacts{justify-content:flex-end} }
+  @media (max-width:760px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} .stats{grid-template-columns:repeat(2,minmax(0,1fr))} .wrap{padding:18px 14px 32px} .acts{display:flex} .ms-add{display:inline-block} .sub-add{display:inline-block} .co-add{display:inline-block} .dates-add{display:inline-block} .mid-add{display:inline-block} .mid-edit{display:inline-block} .bacts{visibility:visible} .brow{grid-template-columns:1fr} .bacts{justify-content:flex-end} }
   @media (max-width:480px){ .board{grid-template-columns:1fr} }
 </style>
 </head>
@@ -256,7 +274,7 @@
   <div class="stats" id="stats"></div>
   <div class="board" id="board"></div>
   <div class="insights" id="insights"></div>
-  <div class="hint" id="hint">Hover a card for Status / Note / Move / Remove / &#10003; Approve &middot; sign in (top right) to edit &middot; every change appears for the whole team within seconds &middot; when DFCS approves someone, click the green &#10003; on their card &mdash; the Insights tab tracks how long each approval took from the DFCS submitted date, and each member's county powers the by-district breakdown</div>
+  <div class="hint" id="hint">Hover a card for Status / Note / Move / Remove / &#10003; Approve &middot; hover also shows + Medicaid ID &mdash; it travels with the member into the approval history &middot; sign in (top right) to edit &middot; every change appears for the whole team within seconds &middot; when DFCS approves someone, click the green &#10003; on their card &mdash; the Insights tab tracks how long each approval took from the DFCS submitted date, and each member's county powers the by-district breakdown</div>
 </div>
 <div id="toast"></div>
 <div class="signpanel" id="signPanel" style="display:none">
@@ -324,7 +342,7 @@ var DEFAULT_DATA = {
     {id:"active",name:"Active Communication",members:[
       {n:"Ha, A",id:"97658",ms:"QMB",note:"Spoke with 7/15. Getting BS and car registration | BS submitted 7/22",noteDate:"7/22/26"}
     ]},
-    {id:"corrdate",name:"Need Corrected Approval Date",members:[
+    {id:"corrdate",name:"Need Corrected Effective Date",members:[
       {n:"Samuels, Tory",id:"483373",ms:"Active",eff:"7/1/26",needed:"3/23/26"},
       {n:"Spears, Kevin",id:"93964",ms:"Active",eff:"3/1/26",needed:"12/18/25",note:"emailed cw 6/10 | 'The verification was not received until 6/1/26 and case can not be back dated more than 3 months' | emailed cw for explanation | emailed 6/24",noteDate:"7/15/26"},
       {n:"Bohannon, Teresa",id:"449497",ms:"Active",eff:"",needed:"2/1/26"}
@@ -369,6 +387,8 @@ var openForm = null;
 var editNoteKey = null;
 var editSubKey = null;
 var editDatesKey = null;
+var editMidKey = null;
+var expandedNotes = {};
 var insightsDist = null;
 var editApprKey = null;
 var editCoKey = null;
@@ -451,7 +471,7 @@ function toBoard(d){
 function revert(){
   data = lastRemote ? clone(lastRemote) : JSON.parse(DEFAULT_JSON);
   approvedArr = lastApproved ? clone(lastApproved) : [];
-  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null;
+  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null; editMidKey = null;
   render();
 }
 function save(){
@@ -515,6 +535,15 @@ function cardHTML(m, cat){
       ? '<span class="ms'+(m.ms==='QMB'?' is-qmb':(m.ms==='None'?' is-none':(m.ms==='Active'?' is-active':'')))+'" title="Click to change Medicaid status">'+esc(m.ms)+'</span>'
       : '<button class="ms-add" title="Set Medicaid status">+ status</button>')
     + '</div>';
+  if(editMidKey===key){
+    html += '<div class="midform"><input class="mf-mid" placeholder="Medicaid ID or T-number" value="'+esc(m.mid||'')+'" autocomplete="off">'
+      + '<div class="row"><button class="go">Save</button><button class="no">Cancel</button></div></div>';
+  } else if(m.mid){
+    html += '<div><span class="mid" data-copy="'+esc(m.mid)+'" title="Medicaid ID &mdash; click to copy">'+esc(m.mid)+'</span>'
+      + '<button class="mid-edit" title="Edit Medicaid ID">&#9998;</button></div>';
+  } else {
+    html += '<div><button class="mid-add" title="Add the member&#39;s Medicaid ID (or Gateway T-number)">+ Medicaid ID</button></div>';
+  }
   if(editCoKey===key){
     html += '<div class="coform"><input class="cf-co" list="gaCounties" placeholder="County" value="'+esc(m.co||'')+'" autocomplete="off">'
       + '<div class="row"><button class="go">Save</button><button class="no">Cancel</button></div></div>';
@@ -550,26 +579,40 @@ function cardHTML(m, cat){
   if(isCorr || m.eff || m.needed){
     if(editDatesKey===key){
       html += '<div class="dateform">'
-        + '<div><div class="dl">Effective date (what DFCS has)</div><input class="df-eff" placeholder="M/D/YY" value="'+esc(m.eff||'')+'" autocomplete="off"></div>'
-        + '<div><div class="dl">Date needed</div><input class="df-needed" placeholder="M/D/YY" value="'+esc(m.needed||'')+'" autocomplete="off"></div>'
+        + '<div><div class="dl">Effective date on file (caseworker&#39;s date)</div><input class="df-eff" placeholder="M/D/YY" value="'+esc(m.eff||'')+'" autocomplete="off"></div>'
+        + '<div><div class="dl">Corrected date needed (SCCM start of services)</div><input class="df-needed" placeholder="M/D/YY" value="'+esc(m.needed||'')+'" autocomplete="off"></div>'
         + '<div class="row"><button class="go">Save</button><button class="no">Cancel</button></div></div>';
     } else if(m.eff || m.needed){
-      html += '<div class="dates" title="Click to edit the effective and needed dates"><span>Effective <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span><span class="dpen">&#9998; edit</span></div>';
+      html += '<div class="dates" title="Click to edit &mdash; On file: the effective date the caseworker entered &middot; Needed: the corrected date (SCCM start of services)"><span>On file <b>'+esc(m.eff||'—')+'</b></span><span>Needed <b>'+esc(m.needed||'—')+'</b></span><span class="dpen">&#9998; edit</span></div>';
     } else {
-      html += '<div><button class="dates-add" title="Enter the effective date DFCS has on file and the date the member actually needs">+ Effective / needed dates</button></div>';
+      html += '<div><button class="dates-add" title="Enter the effective date the caseworker has on file and the corrected date needed (SCCM start of services)">+ Effective / needed dates</button></div>';
     }
   }
   if(editApprKey===key){
-    html += '<div class="apform"><div class="ap-label">DFCS approval date</div>'
+    html += '<div class="apform"><div class="ap-label">Approval date &middot; active in GAMMIS</div>'
       + '<input class="ap-date" value="'+esc(todayStr())+'" autocomplete="off">'
-      + '<label class="ap-fix" title="Logs the approval with correct timing, then keeps a card in Need Corrected Approval Date to track the fix"><input type="checkbox" class="ap-needsfix">Needs corrected approval date</label>'
+      + '<div class="ap-label">Effective date &middot; SCCM start of services (optional)</div>'
+      + '<input class="ap-eff" placeholder="M/D/YY" value="'+esc(m.eff||'')+'" autocomplete="off">'
+      + '<div class="ap-label">Medicaid ID (optional)</div>'
+      + '<input class="ap-mid" placeholder="Medicaid ID or T-number" value="'+esc(m.mid||'')+'" autocomplete="off">'
+      + '<label class="ap-fix" title="Logs the approval with correct timing, then keeps a card in Need Corrected Effective Date to track the fix"><input type="checkbox" class="ap-needsfix">Needs corrected effective date</label>'
       + '<div class="row"><button class="go">&#10003; Approve</button><button class="no">Cancel</button></div></div>';
   }
   if(editNoteKey===key){
     html += '<div class="noteform"><textarea placeholder="Type a note...">'+esc(m.note||'')+'</textarea>'
       + '<div class="row"><button class="go">Save note</button><button class="no">Cancel</button></div></div>';
   } else if(m.note){
-    html += '<div class="note" title="Click to edit note">'+esc(m.note)
+    var nparts = String(m.note).split('|').map(function(s){ return s.trim(); }).filter(function(s){ return s; });
+    var ninner;
+    if(nparts.length > 1){
+      var nexp = !!expandedNotes[key];
+      var shown = nexp ? nparts : [nparts[nparts.length-1]];
+      ninner = shown.map(function(p){ return '<span class="nline">'+esc(p)+'</span>'; }).join('')
+        + '<button class="ntog">'+(nexp ? 'Show latest only' : '+ '+(nparts.length-1)+' earlier update'+(nparts.length===2?'':'s'))+'</button>';
+    } else {
+      ninner = esc(m.note);
+    }
+    html += '<div class="note" title="Click to edit note">'+ninner
       + (m.noteDate ? '<span class="ndate">'+esc(m.noteDate)+'</span>' : '')
       + '</div>';
   }
@@ -643,6 +686,8 @@ function render(){
   if(coInput){ coInput.focus(); coInput.setSelectionRange(coInput.value.length, coInput.value.length); }
   var dfInput = document.querySelector('.dateform input');
   if(dfInput){ dfInput.focus(); dfInput.setSelectionRange(dfInput.value.length, dfInput.value.length); }
+  var midInput = document.querySelector('.midform input');
+  if(midInput){ midInput.focus(); midInput.setSelectionRange(midInput.value.length, midInput.value.length); }
   renderInsights();
 }
 function renderInsights(){
@@ -666,7 +711,7 @@ function renderInsights(){
     {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B', tip:'Everyone marked approved with the green check'},
     {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date'},
     {label:'Fastest / slowest approval', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC', tip:'Quickest and longest approval so far, in days'},
-    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet. Need Corrected Approval Date members are already approved, so they are not counted.'}
+    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet. Need Corrected Effective Date members are already approved, so they are not counted.'}
   ];
   var html = '<div class="stats">' + tiles.map(function(s){
     return '<div class="stat" title="'+esc(s.tip)+'"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
@@ -770,8 +815,8 @@ function renderInsights(){
         dtag = ' <span class="bi">&middot; '+esc(ci3.name)+'</span>';
       }
       return '<div class="brow">'
-        + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+dtag+'</div>'
-        + '<div class="bdates">'+(r.sub ? 'DFCS '+esc(r.sub)+' &rarr; ' : '')+'&#10003; '+esc(r.appr)+'</div></div>'
+        + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+(r.mid ? ' <span class="bi">&middot; Medicaid '+esc(r.mid)+'</span>' : '')+dtag+'</div>'
+        + '<div class="bdates">'+(r.sub ? 'DFCS '+esc(r.sub)+' &rarr; ' : '')+'&#10003; '+esc(r.appr)+(r.eff ? ' &middot; effective '+esc(r.eff) : '')+'</div></div>'
         + '<div class="bwrap">'+barCell+'</div>'
         + '<div class="bacts"><button class="undo" data-ai="'+x.i+'" title="Send back to the board">&#8617; Undo</button>'
         + '<button class="adel danger" data-ai="'+x.i+'" title="Delete from approval history">&times;</button></div>'
@@ -801,7 +846,7 @@ function renderInsights(){
           + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s'))+'</span></div>';
       }).join('') + '</div></div>';
   }
-  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60 &middot; Need Corrected Approval Date members are already approved and not counted here</div>';
+  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60 &middot; Need Corrected Effective Date members are already approved and not counted here</div>';
   if(!waiting.length){
     html += '<div class="emptymsg">Nobody on the board has a DFCS submitted date yet. Set one with the + DFCS date button on a card and they will be timed here.</div>';
   } else {
@@ -813,7 +858,7 @@ function renderInsights(){
           var ci4 = countyInfo(w.m.co);
           dcell = '<span class="dchip'+(ci4.d?'':' unk')+'">'+(ci4.d ? 'D'+ci4.d : 'D?')+'</span> <span class="mut">'+esc(ci4.name)+'</span>';
         }
-        return '<tr><td>'+esc(w.m.n)+'</td><td class="mut">'+esc(w.m.id)+'</td>'
+        return '<tr><td>'+esc(w.m.n)+'</td><td class="mut">'+esc(w.m.id)+(w.m.mid ? '<span class="tmid">'+esc(w.m.mid)+'</span>' : '')+'</td>'
           + '<td>'+dcell+'</td>'
           + '<td><span class="coltag"><span class="mdot2" style="background:'+ACCENTS[w.c.id]+'"></span>'+esc(w.c.name)+(w.m.g ? ' &middot; '+esc(w.m.g) : '')+'</span></td>'
           + '<td class="mut">'+esc(w.m.sub)+'</td>'
@@ -901,6 +946,7 @@ function openMoveMenu(btn, key){
     var dest = data.categories.find(function(c){ return c.id===o.cid; });
     var moved = {n:m.n, id:m.id};
     if(m.ms) moved.ms = m.ms;
+    if(m.mid) moved.mid = m.mid;
     if(m.co) moved.co = m.co;
     if(m.sub) moved.sub = m.sub;
     if(m.note){ moved.note = m.note; if(m.noteDate) moved.noteDate = m.noteDate; }
@@ -929,13 +975,18 @@ document.addEventListener('click', function(e){
   if(card){
     var key = card.getAttribute('data-key');
     if(e.target.closest('.ms') || e.target.closest('.ms-add')){ openStatusMenu(e.target.closest('.ms') || e.target.closest('.ms-add'), key); return; }
-    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; render(); return; }
     if(e.target.closest('.apform .go')){
       var fa = findMember(key);
       if(fa){
-        var av = card.querySelector('.apform input').value.trim();
+        var av = card.querySelector('.apform .ap-date').value.trim();
         if(!parseDate(av)){ showToast('Enter the approval date as M/D/YY'); return; }
+        var evx = card.querySelector('.apform .ap-eff').value.trim();
+        if(evx && !parseDate(evx)){ showToast('Enter the effective date as M/D/YY, or leave it blank'); return; }
+        var mvx = card.querySelector('.apform .ap-mid').value.trim();
         var rec = {n:fa.m.n, id:fa.m.id, appr:av, from:fa.cat.id};
+        if(evx) rec.eff = evx;
+        if(mvx) rec.mid = mvx; else if(fa.m.mid) rec.mid = fa.m.mid;
         if(fa.m.ms) rec.ms = fa.m.ms;
         if(fa.m.co) rec.co = fa.m.co;
         if(fa.m.sub) rec.sub = fa.m.sub;
@@ -946,7 +997,8 @@ document.addEventListener('click', function(e){
         approvedArr.push(rec);
         if(needsFix){
           var cdCat = data.categories.find(function(c){ return c.id==='corrdate'; });
-          var kept = {n:fa.m.n, id:fa.m.id, eff:'', needed:''};
+          var kept = {n:fa.m.n, id:fa.m.id, eff:evx||'', needed:''};
+          if(rec.mid) kept.mid = rec.mid;
           if(fa.m.ms) kept.ms = fa.m.ms;
           if(fa.m.co) kept.co = fa.m.co;
           if(fa.m.sub) kept.sub = fa.m.sub;
@@ -956,7 +1008,7 @@ document.addEventListener('click', function(e){
         }
         editApprKey = null; saveAll(); render();
         var dd = apprDays(rec);
-        showToast('✓ ' + rec.n + ' approved' + (dd === null ? '' : '  ·  ' + dd + (dd===1?' day':' days') + ' after DFCS submission') + (needsFix ? '  ·  kept in Need Corrected Approval Date' : ''));
+        showToast('✓ ' + rec.n + ' approved' + (dd === null ? '' : '  ·  ' + dd + (dd===1?' day':' days') + ' after DFCS submission') + (needsFix ? '  ·  kept in Need Corrected Effective Date' : ''));
       }
       return;
     }
@@ -967,7 +1019,7 @@ document.addEventListener('click', function(e){
       if(fu){ delete fu.m.g; save(); render(); showToast(fu.m.n + '  →  escalation list'); }
       return;
     }
-    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; editDatesKey = null; editMidKey = null; render(); return; }
     if(e.target.closest('.coform .go')){
       var fc = findMember(key);
       if(fc){
@@ -986,7 +1038,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.coform .no')){ editCoKey = null; render(); return; }
     if(e.target.closest('.coform')){ return; }
-    if(e.target.closest('.dates') || e.target.closest('.dates-add')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; render(); return; }
+    if(e.target.closest('.dates') || e.target.closest('.dates-add')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editMidKey = null; render(); return; }
     if(e.target.closest('.dateform .go')){
       var fd = findMember(key);
       if(fd){
@@ -1000,7 +1052,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.dateform .no')){ editDatesKey = null; render(); return; }
     if(e.target.closest('.dateform')){ return; }
-    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; render(); return; }
     if(e.target.closest('.subform .today')){
       var fs = findMember(key);
       if(fs){ fs.m.sub = todayStr(); editSubKey = null; save(); render(); showToast('Submitted to DFCS ' + fs.m.sub); }
@@ -1018,7 +1070,21 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.subform .no')){ editSubKey = null; render(); return; }
     if(e.target.closest('.subform')){ return; }
-    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.ntog')){ expandedNotes[key] = !expandedNotes[key]; render(); return; }
+    if(e.target.closest('.mid-edit') || e.target.closest('.mid-add')){ editMidKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.midform .go')){
+      var fmd = findMember(key);
+      if(fmd){
+        var mvv = card.querySelector('.midform input').value.trim();
+        if(mvv){ fmd.m.mid = mvv; } else { delete fmd.m.mid; }
+        editMidKey = null; save(); render();
+        showToast(mvv ? 'Medicaid ID saved' : 'Medicaid ID removed');
+      }
+      return;
+    }
+    if(e.target.closest('.midform .no')){ editMidKey = null; render(); return; }
+    if(e.target.closest('.midform')){ return; }
+    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; editDatesKey = null; editMidKey = null; render(); return; }
     if(e.target.closest('.noteform .go')){
       var f = findMember(key);
       if(f){
@@ -1065,6 +1131,7 @@ document.addEventListener('click', function(e){
         var destc = data.categories.find(function(c){ return c.id === rec2.from; }) || data.categories[0];
         var back = {n:rec2.n, id:rec2.id};
         if(rec2.ms) back.ms = rec2.ms;
+        if(rec2.mid) back.mid = rec2.mid;
         if(rec2.co) back.co = rec2.co;
         if(rec2.sub) back.sub = rec2.sub;
         if(rec2.note){ back.note = rec2.note; if(rec2.noteDate) back.noteDate = rec2.noteDate; }
@@ -1125,12 +1192,17 @@ document.addEventListener('keydown', function(e){
     var cgo = cc && cc.querySelector('.coform .go');
     if(cgo) cgo.click();
   }
+  if(e.key==='Enter' && e.target.closest && e.target.closest('.midform')){
+    var mc = e.target.closest('.card');
+    var mgo = mc && mc.querySelector('.midform .go');
+    if(mgo) mgo.click();
+  }
   if(e.key==='Enter' && e.target.closest && e.target.closest('.dateform')){
     var dc = e.target.closest('.card');
     var dgo = dc && dc.querySelector('.dateform .go');
     if(dgo) dgo.click();
   }
-  if(e.key==='Escape'){ closeMenus(); document.getElementById('signPanel').style.display='none'; if(openForm || editNoteKey || editSubKey || editApprKey || editCoKey || editDatesKey){ openForm=null; editNoteKey=null; editSubKey=null; editApprKey=null; editCoKey=null; editDatesKey=null; render(); } }
+  if(e.key==='Escape'){ closeMenus(); document.getElementById('signPanel').style.display='none'; if(openForm || editNoteKey || editSubKey || editApprKey || editCoKey || editDatesKey || editMidKey){ openForm=null; editNoteKey=null; editSubKey=null; editApprKey=null; editCoKey=null; editDatesKey=null; editMidKey=null; render(); } }
 });
 (function(){
   var dl = document.getElementById('gaCounties');
