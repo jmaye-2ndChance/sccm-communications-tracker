@@ -602,7 +602,7 @@ function cardHTML(m, cat){
     html += '<div class="noteform"><textarea placeholder="Type a note...">'+esc(m.note||'')+'</textarea>'
       + '<div class="row"><button class="go">Save note</button><button class="no">Cancel</button></div></div>';
   } else if(m.note){
-    var nparts = String(m.note).split('|').map(function(s){ return s.trim(); }).filter(function(s){ return s; });
+    var nparts = String(m.note).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(function(s){ return s; });
     var ninner;
     if(nparts.length > 1){
       var nexp = !!expandedNotes[key];
