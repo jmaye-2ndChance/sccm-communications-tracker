@@ -196,6 +196,31 @@
   .apform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
   .apform .row .go{background:#2f8a4e;color:#fff}
   .apform .row .no{background:#e4edf5;color:#3a5a80}
+  .acts button.dn{color:#b3364a;border-color:#d8a7b0;font-weight:700}
+  .acts button.dn:hover{background:#f7e9ec}
+  .dnform{margin-top:7px;display:flex;flex-direction:column;gap:6px}
+  .dnform .dn-label{font-size:11px;font-weight:700;color:#8f2f40}
+  .dnform input{border:1px solid #d8a7b0;border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px;color:#12335F;width:100%;box-sizing:border-box}
+  .dnform .row{display:flex;gap:6px}
+  .dnform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .dnform .row .go{background:#b3364a;color:#fff}
+  .dnform .row .no{background:#e4edf5;color:#3a5a80}
+  .istats{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .istats .value{font-size:27px}
+  .listrow{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--hairline);background:rgba(255,255,255,.04);border-radius:9px;margin-bottom:6px;font-size:12.5px;color:#cfdff2}
+  .listrow b{font-variant-numeric:tabular-nums;color:#fff}
+  .listrow .ldel{margin-left:auto;border:1px solid rgba(242,184,184,.4);background:rgba(255,255,255,.06);color:#f2b8b8;border-radius:7px;padding:2px 8px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;line-height:1.4}
+  .listrow .ldel:hover{background:rgba(242,184,184,.15)}
+  .listadd{border:1px dashed rgba(255,255,255,.3);background:transparent;color:#cfdff2;border-radius:9px;padding:7px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:2px}
+  .listadd:hover{background:rgba(255,255,255,.07);color:#fff}
+  .listform{display:flex;flex-direction:column;gap:6px;border:1px solid var(--hairline);background:rgba(255,255,255,.04);border-radius:9px;padding:10px;margin-top:4px;max-width:340px}
+  .listform .lf-label{font-size:11px;font-weight:700;color:#9db8dd}
+  .listform input{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.92);border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px;color:#12335F;box-sizing:border-box}
+  .listform .row{display:flex;gap:6px}
+  .listform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .listform .row .go{background:#1c5fb0;color:#fff}
+  .listform .row .no{background:rgba(255,255,255,.14);color:#cfdff2}
+  .denreason{font-style:italic;color:#f2b8b8;font-weight:400}
   .viewtog{display:flex;border:1px solid rgba(255,255,255,.2);border-radius:10px;overflow:hidden}
   .viewtog button{border:none;background:rgba(255,255,255,.08);color:#cfdff2;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
   .viewtog button.on{background:#e8a13d;color:#2c1f08;font-weight:700}
@@ -395,6 +420,12 @@ var editCoKey = null;
 var view = 'board';
 var approvedArr = [];
 var lastApproved = null;
+var deniedArr = [];
+var lastDenied = null;
+var listsArr = [];
+var lastLists = null;
+var editDenyKey = null;
+var openListForm = false;
 
 function fmtStamp(){
   var d = new Date();
@@ -471,7 +502,9 @@ function toBoard(d){
 function revert(){
   data = lastRemote ? clone(lastRemote) : JSON.parse(DEFAULT_JSON);
   approvedArr = lastApproved ? clone(lastApproved) : [];
-  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null; editMidKey = null;
+  deniedArr = lastDenied ? clone(lastDenied) : [];
+  listsArr = lastLists ? clone(lastLists) : [];
+  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; openListForm = false;
   render();
 }
 function save(){
@@ -501,7 +534,7 @@ function saveAll(){
     setTimeout(function(){ showToast('Sign in (top right) to make changes'); }, 0);
     return;
   }
-  db.ref().update({board: toBoard(data), approved: approvedArr})['catch'](function(e){
+  db.ref().update({board: toBoard(data), approved: approvedArr, denied: deniedArr, lists: listsArr})['catch'](function(e){
     revert();
     setTimeout(function(){ showToast('Save failed - check your connection'); }, 0);
   });
@@ -525,6 +558,7 @@ function cardHTML(m, cat){
   var html = '<div class="card" data-key="'+esc(key)+'">'
     + '<div class="acts">'
     + '<button class="ap" title="Mark approved by DFCS">&#10003;</button>'
+    + '<button class="dn" title="Mark denied by DFCS">&#10007;</button>'
     + '<button class="nt" title="Add or edit note">📝</button>'
     + '<button class="mv" title="Move to another section">Move</button>'
     + '<button class="danger rm" title="Remove member">&times;</button>'
@@ -597,6 +631,13 @@ function cardHTML(m, cat){
       + '<input class="ap-mid" placeholder="Medicaid ID or T-number" value="'+esc(m.mid||'')+'" autocomplete="off">'
       + '<label class="ap-fix" title="Logs the approval with correct timing, then keeps a card in Need Corrected Effective Date to track the fix"><input type="checkbox" class="ap-needsfix">Needs corrected effective date</label>'
       + '<div class="row"><button class="go">&#10003; Approve</button><button class="no">Cancel</button></div></div>';
+  }
+  if(editDenyKey===key){
+    html += '<div class="dnform"><div class="dn-label">Denial date</div>'
+      + '<input class="dn-date" value="'+esc(todayStr())+'" autocomplete="off">'
+      + '<div class="dn-label">Reason (optional)</div>'
+      + '<input class="dn-reason" placeholder="e.g. over income, missing verification" autocomplete="off">'
+      + '<div class="row"><button class="go">&#10007; Denied</button><button class="no">Cancel</button></div></div>';
   }
   if(editNoteKey===key){
     html += '<div class="noteform"><textarea placeholder="Type a note...">'+esc(m.note||'')+'</textarea>'
@@ -682,6 +723,8 @@ function render(){
   if(noteArea){ noteArea.focus(); noteArea.setSelectionRange(noteArea.value.length, noteArea.value.length); }
   var apInput = document.querySelector('.apform input');
   if(apInput){ apInput.focus(); apInput.setSelectionRange(apInput.value.length, apInput.value.length); }
+  var dnInput = document.querySelector('.dnform input');
+  if(dnInput){ dnInput.focus(); dnInput.setSelectionRange(dnInput.value.length, dnInput.value.length); }
   var coInput = document.querySelector('.coform input');
   if(coInput){ coInput.focus(); coInput.setSelectionRange(coInput.value.length, coInput.value.length); }
   var dfInput = document.querySelector('.dateform input');
@@ -707,15 +750,26 @@ function renderInsights(){
     });
   });
   waiting.sort(function(a,b){ return b.d - a.d; });
+  var drecs = deniedArr.map(function(r,i){ return {r:r, i:i, at:parseDate(r.den)}; });
+  var lw = waiting.length ? waiting[0] : null;
   var tiles = [
     {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B', tip:'Everyone marked approved with the green check'},
+    {label:'Members denied', value:deniedArr.length, accent:'#E08A8A', tip:'Everyone marked denied with the red ✗ — each one was moved back to Need to Submit to DFCS to be resubmitted'},
     {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date'},
     {label:'Fastest / slowest approval', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC', tip:'Quickest and longest approval so far, in days'},
+    {label:'Longest active wait', value:lw ? lw.d : '—', accent:'#D9B578', tip: lw ? lw.m.n+' — submitted to DFCS '+lw.m.sub+' and still waiting, in days' : 'Nobody on the board has a DFCS submitted date yet'},
     {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet. Need Corrected Effective Date members are already approved, so they are not counted.'}
   ];
-  var html = '<div class="stats">' + tiles.map(function(s){
+  var html = '<div class="stats istats">' + tiles.map(function(s){
     return '<div class="stat" title="'+esc(s.tip)+'"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
   }).join('') + '</div>';
+  if(lw){
+    var lwd = lw.m.co ? countyInfo(lw.m.co) : null;
+    html += '<div class="slowline" style="margin:-8px 0 14px">Longest one still in progress: '+esc(lw.m.n)
+      + ' &middot; <b>'+lw.d+'</b> day'+(lw.d===1?'':'s')+' since DFCS '+esc(lw.m.sub)
+      + (lwd ? ' &middot; '+(lwd.d ? 'D'+lwd.d+' &middot; ' : '')+esc(lwd.name) : '')
+      + ' &middot; sitting in '+esc(lw.c.name)+'</div>';
+  }
   function distOf(co){
     var ci = co ? countyInfo(co) : null;
     if(!ci) return 'none';
@@ -764,6 +818,75 @@ function renderInsights(){
           + '<td class="mut">'+(r.nW || '&mdash;')+'</td>'
           + mxCell + '</tr>';
       }).join('') + '</table>';
+  }
+  html += '</div>';
+  var mstats = {};
+  function mrowS(k){ if(!mstats[k]) mstats[k] = {sent:0, appr:0, den:0}; return mstats[k]; }
+  listsArr.forEach(function(L){ var dt = parseDate(L.d); if(dt) mrowS(dt.getFullYear()*100 + dt.getMonth()).sent += (+L.n || 0); });
+  recs.forEach(function(x){ if(x.at) mrowS(x.at.getFullYear()*100 + x.at.getMonth()).appr++; });
+  drecs.forEach(function(x){ if(x.at) mrowS(x.at.getFullYear()*100 + x.at.getMonth()).den++; });
+  html += '<div class="ipanel"><h3>Escalation list results</h3><div class="isub">Log each escalation list when it goes out (date + how many members were on it) &middot; each month&rsquo;s approval and denial rates compare that month&rsquo;s decisions to the members sent that month</div>';
+  var listsSorted = listsArr.map(function(L,i){ return {L:L, i:i, at:parseDate(L.d)}; }).filter(function(x){ return x.at; }).sort(function(a,b){ return b.at.getTime() - a.at.getTime(); });
+  if(listsSorted.length){
+    var latest = listsSorted[0];
+    var denSince = drecs.filter(function(x){ return x.at && x.at.getTime() >= latest.at.getTime(); }).length;
+    var apprSince = recs.filter(function(x){ return x.at && x.at.getTime() >= latest.at.getTime(); }).length;
+    var pd = latest.L.n ? Math.round(denSince/latest.L.n*100) : null;
+    var pa = latest.L.n ? Math.round(apprSince/latest.L.n*100) : null;
+    html += '<div class="slowline">Latest list &middot; sent '+esc(latest.L.d)+' &middot; '+latest.L.n+' member'+(latest.L.n===1?'':'s')
+      + ' &middot; '+denSince+' denied since ('+(pd===null?'&mdash;':pd+'%')+')'
+      + ' &middot; '+apprSince+' approved since ('+(pa===null?'&mdash;':pa+'%')+')</div>';
+  }
+  var mksS = Object.keys(mstats).map(Number).sort(function(a,b){ return a-b; });
+  if(mksS.length){
+    html += '<table class="wtable"><tr><th>Month</th><th>Members sent</th><th>Approved</th><th>Denied</th><th>Approval rate</th><th>Denial rate</th></tr>'
+      + mksS.map(function(k){
+        var b = mstats[k];
+        var lblM = MONTH_NAMES[k%100] + ' &rsquo;' + String(Math.floor(k/100)).slice(-2);
+        function rate(x){ return b.sent ? '<b>'+Math.round(x/b.sent*100)+'%</b>' : '<span class="mut">no list logged</span>'; }
+        return '<tr><td>'+lblM+'</td><td class="mut">'+(b.sent || '&mdash;')+'</td>'
+          + '<td class="mut">'+(b.appr || '&mdash;')+'</td><td class="mut">'+(b.den || '&mdash;')+'</td>'
+          + '<td>'+(b.appr ? rate(b.appr) : '<span class="mut">&mdash;</span>')+'</td>'
+          + '<td>'+(b.den ? rate(b.den) : '<span class="mut">&mdash;</span>')+'</td></tr>';
+      }).join('') + '</table>';
+  } else {
+    html += '<div class="emptymsg">Nothing to measure yet. Log your first list below, and mark approvals (&#10003;) and denials (&#10007;) on the board as DFCS decides &mdash; the monthly rates will build themselves.</div>';
+  }
+  html += '<div style="margin-top:12px">';
+  listsArr.forEach(function(L,i){
+    html += '<div class="listrow"><b>'+esc(L.d)+'</b><span>'+L.n+' member'+(L.n===1?'':'s')+' sent</span><button class="ldel" data-li="'+i+'" title="Remove this list from the log">&times;</button></div>';
+  });
+  if(openListForm){
+    var awaitCt = (data.categories.find(function(c){ return c.id==='awaiting'; }) || {members:[]}).members.length;
+    html += '<div class="listform"><div class="lf-label">Date the list went out</div><input class="lf-date" value="'+esc(todayStr())+'" autocomplete="off">'
+      + '<div class="lf-label">Members sent on the list</div><input class="lf-count" value="'+awaitCt+'" autocomplete="off">'
+      + '<div class="row"><button class="go">Log list</button><button class="no">Cancel</button></div></div>';
+  } else {
+    html += '<button class="listadd" title="Record a list that went out so denial and approval rates can be measured against it">+ Log a list that went out</button>';
+  }
+  html += '</div></div>';
+  html += '<div class="ipanel"><h3>Denials</h3><div class="isub">Members DFCS denied, newest first &middot; each one was moved back to Need to Submit with a &ldquo;waiting to resub month out&rdquo; note &middot; hover a row to remove it from history</div>';
+  if(!drecs.length){
+    html += '<div class="emptymsg">No denials logged yet. If DFCS denies a member, hover their card on the board and click the red &#10007; &mdash; the denial is logged here and the member moves back to Need to Submit to DFCS.</div>';
+  } else {
+    var dby = drecs.slice().sort(function(a,b){
+      var x = a.at ? a.at.getTime() : 0, y = b.at ? b.at.getTime() : 0;
+      return y - x;
+    });
+    html += dby.map(function(x){
+      var r = x.r;
+      var ddays = null;
+      var da = parseDate(r.den), dsb = parseDate(r.sub);
+      if(da && dsb){ var dv0 = Math.floor((da.getTime()-dsb.getTime())/86400000); if(dv0 >= 0) ddays = dv0; }
+      var dtag2 = '';
+      if(r.co){ var ci5 = countyInfo(r.co); dtag2 = ' <span class="bi">&middot; '+esc(ci5.name)+'</span>'; }
+      return '<div class="brow">'
+        + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+(r.mid ? ' <span class="bi">&middot; Medicaid '+esc(r.mid)+'</span>' : '')+dtag2+'</div>'
+        + '<div class="bdates">'+(r.sub ? 'DFCS '+esc(r.sub)+' &rarr; ' : '')+'&#10007; denied '+esc(r.den)+'</div></div>'
+        + '<div class="bwrap">'+(r.reason ? '<span class="bdays denreason">'+esc(r.reason)+'</span>' : (ddays !== null ? '<span class="bdays mut">'+ddays+(ddays===1?' day':' days')+' after submission</span>' : ''))+'</div>'
+        + '<div class="bacts"><button class="adel danger" data-di="'+x.i+'" title="Delete from denial history">&times;</button></div>'
+        + '</div>';
+    }).join('');
   }
   html += '</div>';
   var byNew = recs.slice().sort(function(a,b){
@@ -828,22 +951,25 @@ function renderInsights(){
     var byMonth = {};
     withMonth.forEach(function(x){
       var k = x.at.getFullYear()*100 + x.at.getMonth();
-      if(!byMonth[k]) byMonth[k] = {n:0, sum:0, nt:0};
+      if(!byMonth[k]) byMonth[k] = {n:0, sum:0, nt:0, min:null};
       byMonth[k].n++;
-      if(x.d !== null){ byMonth[k].sum += x.d; byMonth[k].nt++; }
+      if(x.d !== null){
+        byMonth[k].sum += x.d; byMonth[k].nt++;
+        if(byMonth[k].min === null || x.d < byMonth[k].min) byMonth[k].min = x.d;
+      }
     });
     var mkeys = Object.keys(byMonth).map(Number).sort(function(a,b){ return a-b; });
     var mrows = mkeys.map(function(k){
       var b = byMonth[k];
-      return {k:k, n:b.n, avg:b.nt ? Math.round(b.sum/b.nt) : null};
+      return {k:k, n:b.n, avg:b.nt ? Math.round(b.sum/b.nt) : null, min:b.min};
     });
     var maxn = Math.max.apply(null, mrows.map(function(x){ return x.n; })) || 1;
-    html += '<div class="ipanel"><h3>Approvals per month</h3><div class="isub">How many members were approved each month &middot; the small line under each bar is that month&rsquo;s average days to approval</div><div class="trend">'
+    html += '<div class="ipanel"><h3>Approvals per month</h3><div class="isub">How many members were approved each month &middot; under each bar: that month&rsquo;s average days to approval and its quickest approval</div><div class="trend">'
       + mrows.map(function(x){
         var h = Math.max(6, Math.round(x.n / maxn * 110));
         return '<div class="tcol"><span class="tavg">'+x.n+'</span><div class="tbar" style="height:'+h+'px"></div>'
           + '<span class="tmon">'+MONTH_NAMES[x.k%100]+' &rsquo;'+String(Math.floor(x.k/100)).slice(-2)+'</span>'
-          + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s'))+'</span></div>';
+          + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s')+' &middot; fastest '+x.min)+'</span></div>';
       }).join('') + '</div></div>';
   }
   html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60 &middot; Need Corrected Effective Date members are already approved and not counted here</div>';
@@ -975,7 +1101,38 @@ document.addEventListener('click', function(e){
   if(card){
     var key = card.getAttribute('data-key');
     if(e.target.closest('.ms') || e.target.closest('.ms-add')){ openStatusMenu(e.target.closest('.ms') || e.target.closest('.ms-add'), key); return; }
-    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; render(); return; }
+    if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; render(); return; }
+    if(e.target.closest('.dn')){ editDenyKey = key; editApprKey = null; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; editCoKey = null; render(); return; }
+    if(e.target.closest('.dnform .go')){
+      var fdn = findMember(key);
+      if(fdn){
+        var dnv = card.querySelector('.dnform .dn-date').value.trim();
+        if(!parseDate(dnv)){ showToast('Enter the denial date as M/D/YY'); return; }
+        var rsn = card.querySelector('.dnform .dn-reason').value.trim();
+        var drec = {n:fdn.m.n, id:fdn.m.id, den:dnv, from:fdn.cat.id};
+        if(rsn) drec.reason = rsn;
+        if(fdn.m.mid) drec.mid = fdn.m.mid;
+        if(fdn.m.ms) drec.ms = fdn.m.ms;
+        if(fdn.m.co) drec.co = fdn.m.co;
+        if(fdn.m.sub) drec.sub = fdn.m.sub;
+        fdn.cat.members.splice(fdn.idx,1);
+        deniedArr.push(drec);
+        var subCat = data.categories.find(function(c){ return c.id==='submit'; });
+        var resub = {n:fdn.m.n, id:fdn.m.id};
+        if(fdn.m.ms) resub.ms = fdn.m.ms;
+        if(fdn.m.mid) resub.mid = fdn.m.mid;
+        if(fdn.m.co) resub.co = fdn.m.co;
+        var dnote = 'Denied by DFCS ' + dnv + (rsn ? ' (' + rsn + ')' : '') + ' - waiting to resub month out';
+        resub.note = (fdn.m.note ? fdn.m.note + '\n' : '') + dnote;
+        resub.noteDate = fmtStamp();
+        subCat.members.push(resub);
+        editDenyKey = null; saveAll(); render();
+        showToast('✗ ' + drec.n + ' denied  ·  moved to ' + subCat.name);
+      }
+      return;
+    }
+    if(e.target.closest('.dnform .no')){ editDenyKey = null; render(); return; }
+    if(e.target.closest('.dnform')){ return; }
     if(e.target.closest('.apform .go')){
       var fa = findMember(key);
       if(fa){
@@ -1019,7 +1176,7 @@ document.addEventListener('click', function(e){
       if(fu){ delete fu.m.g; save(); render(); showToast(fu.m.n + '  →  escalation list'); }
       return;
     }
-    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; editDatesKey = null; editMidKey = null; render(); return; }
+    if(e.target.closest('.dist') || e.target.closest('.co-add')){ editCoKey = key; editNoteKey = null; editSubKey = null; editApprKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.coform .go')){
       var fc = findMember(key);
       if(fc){
@@ -1038,7 +1195,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.coform .no')){ editCoKey = null; render(); return; }
     if(e.target.closest('.coform')){ return; }
-    if(e.target.closest('.dates') || e.target.closest('.dates-add')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editMidKey = null; render(); return; }
+    if(e.target.closest('.dates') || e.target.closest('.dates-add')){ editDatesKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editMidKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.dateform .go')){
       var fd = findMember(key);
       if(fd){
@@ -1052,7 +1209,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.dateform .no')){ editDatesKey = null; render(); return; }
     if(e.target.closest('.dateform')){ return; }
-    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; render(); return; }
+    if(e.target.closest('.sub') || e.target.closest('.sub-add')){ editSubKey = key; editNoteKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.subform .today')){
       var fs = findMember(key);
       if(fs){ fs.m.sub = todayStr(); editSubKey = null; save(); render(); showToast('Submitted to DFCS ' + fs.m.sub); }
@@ -1071,7 +1228,7 @@ document.addEventListener('click', function(e){
     if(e.target.closest('.subform .no')){ editSubKey = null; render(); return; }
     if(e.target.closest('.subform')){ return; }
     if(e.target.closest('.ntog')){ expandedNotes[key] = !expandedNotes[key]; render(); return; }
-    if(e.target.closest('.mid-edit') || e.target.closest('.mid-add')){ editMidKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editDatesKey = null; render(); return; }
+    if(e.target.closest('.mid-edit') || e.target.closest('.mid-add')){ editMidKey = key; editNoteKey = null; editSubKey = null; editCoKey = null; editApprKey = null; editDatesKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.midform .go')){
       var fmd = findMember(key);
       if(fmd){
@@ -1084,7 +1241,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.closest('.midform .no')){ editMidKey = null; render(); return; }
     if(e.target.closest('.midform')){ return; }
-    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; editDatesKey = null; editMidKey = null; render(); return; }
+    if(e.target.closest('.nt') || e.target.closest('.note')){ editNoteKey = key; editSubKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.noteform .go')){
       var f = findMember(key);
       if(f){
@@ -1122,6 +1279,47 @@ document.addEventListener('click', function(e){
   }
   var dtb = e.target.closest('button[data-dk]');
   if(dtb){ insightsDist = dtb.getAttribute('data-dk'); renderInsights(); return; }
+  if(e.target.closest('.listadd')){ openListForm = true; renderInsights(); var lfi = document.querySelector('.listform .lf-date'); if(lfi) lfi.focus(); return; }
+  if(e.target.closest('.listform .go')){
+    var lfdEl = document.querySelector('.listform .lf-date');
+    var lfnEl = document.querySelector('.listform .lf-count');
+    var lfd = lfdEl ? lfdEl.value.trim() : '';
+    var lfn = lfnEl ? parseInt(lfnEl.value.trim(), 10) : NaN;
+    if(!parseDate(lfd)){ showToast('Enter the list date as M/D/YY'); return; }
+    if(!(lfn > 0)){ showToast('Enter how many members went on the list'); return; }
+    listsArr.push({d:lfd, n:lfn});
+    openListForm = false; saveAll(); render();
+    showToast('List logged  ·  ' + lfd + '  ·  ' + lfn + ' member' + (lfn===1?'':'s'));
+    return;
+  }
+  if(e.target.closest('.listform .no')){ openListForm = false; renderInsights(); return; }
+  if(e.target.closest('.listform')){ return; }
+  var lb = e.target.closest('button[data-li]');
+  if(lb){
+    var li = +lb.getAttribute('data-li');
+    if(lb.getAttribute('data-armed')){
+      var lgone = listsArr.splice(li,1)[0];
+      saveAll(); render();
+      if(lgone) showToast('Removed the ' + lgone.d + ' list from the log');
+    } else {
+      lb.setAttribute('data-armed','1'); lb.textContent = 'Sure?';
+      setTimeout(function(){ if(lb.isConnected){ lb.removeAttribute('data-armed'); lb.innerHTML = '&times;'; } }, 2500);
+    }
+    return;
+  }
+  var dbn = e.target.closest('button[data-di]');
+  if(dbn){
+    var di = +dbn.getAttribute('data-di');
+    if(dbn.getAttribute('data-armed')){
+      var dgone = deniedArr.splice(di,1)[0];
+      saveAll(); render();
+      if(dgone) showToast('Removed ' + dgone.n + ' from denial history');
+    } else {
+      dbn.setAttribute('data-armed','1'); dbn.textContent = 'Sure?';
+      setTimeout(function(){ if(dbn.isConnected){ dbn.removeAttribute('data-armed'); dbn.innerHTML = '&times;'; } }, 2500);
+    }
+    return;
+  }
   var ib = e.target.closest('button[data-ai]');
   if(ib){
     var ai = +ib.getAttribute('data-ai');
@@ -1186,6 +1384,15 @@ document.addEventListener('keydown', function(e){
     var ac = e.target.closest('.card');
     var ago = ac && ac.querySelector('.apform .go');
     if(ago) ago.click();
+  }
+  if(e.key==='Enter' && e.target.closest && e.target.closest('.dnform')){
+    var dc = e.target.closest('.card');
+    var dgo = dc && dc.querySelector('.dnform .go');
+    if(dgo) dgo.click();
+  }
+  if(e.key==='Enter' && e.target.closest && e.target.closest('.listform')){
+    var lgo = document.querySelector('.listform .go');
+    if(lgo) lgo.click();
   }
   if(e.key==='Enter' && e.target.closest && e.target.closest('.coform')){
     var cc = e.target.closest('.card');
@@ -1266,6 +1473,16 @@ if(FBOK) db.ref('board').on('value', function(snap){
 if(FBOK) db.ref('approved').on('value', function(snap){
   lastApproved = arrayify(snap.val());
   approvedArr = clone(lastApproved);
+  render();
+});
+if(FBOK) db.ref('denied').on('value', function(snap){
+  lastDenied = arrayify(snap.val());
+  deniedArr = clone(lastDenied);
+  render();
+});
+if(FBOK) db.ref('lists').on('value', function(snap){
+  lastLists = arrayify(snap.val());
+  listsArr = clone(lastLists);
   render();
 });
 if(FBOK) db.ref('.info/connected').on('value', function(snap){
