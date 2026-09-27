@@ -205,6 +205,9 @@
   .dnform .row button{flex:1;border:none;border-radius:7px;padding:6px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
   .dnform .row .go{background:#b3364a;color:#fff}
   .dnform .row .no{background:#e4edf5;color:#3a5a80}
+  .dn-presets{display:flex;gap:6px}
+  .dn-preset{border:1px solid #d8a7b0;background:#fdf0f2;color:#8f2f40;border-radius:8px;padding:4px 9px;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+  .dn-preset.on,.dn-preset:hover{background:#b3364a;border-color:#b3364a;color:#fff}
   .istats{grid-template-columns:repeat(6,minmax(0,1fr))}
   .istats .value{font-size:27px}
   .listrow{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--hairline);background:rgba(255,255,255,.04);border-radius:9px;margin-bottom:6px;font-size:12.5px;color:#cfdff2}
@@ -258,6 +261,42 @@
   .dtab.on .dtn{background:rgba(0,0,0,.15)}
   .dsummary{display:flex;gap:6px 20px;flex-wrap:wrap;font-size:12px;color:#8fa9c6;margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid var(--hairline)}
   .dsummary b{color:#fff;font-variant-numeric:tabular-nums}
+  .irow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+  .irow .ipanel{min-width:0}
+  .irow .pnarrow{flex:1 1 250px}
+  .irow .pwide{flex:2.2 1 430px}
+  .permo{display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap}
+  .permo .trend{flex:1 1 320px}
+  .motable{flex:0 1 360px;border-collapse:collapse;font-size:12.5px}
+  .motable th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:4px 12px 4px 0;border-bottom:1px solid var(--hairline)}
+  .motable td{padding:7px 12px 7px 0;border-bottom:1px dashed var(--hairline);font-variant-numeric:tabular-nums;vertical-align:baseline}
+  .motable .mo{font-size:12.5px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+  .motable .mavg{font-size:18px;font-weight:800;color:#7FAEDE}
+  .motable .mfast{font-size:18px;font-weight:800;color:#6FAF8B}
+  .motable .munit{font-size:10px;color:var(--muted);font-weight:800;margin-left:4px;text-transform:uppercase;letter-spacing:.06em}
+  .ehform{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border:1px solid var(--hairline);background:rgba(255,255,255,.05);border-radius:9px;padding:9px 11px;margin:6px 0 4px}
+  .ehform .ef{display:flex;flex-direction:column;gap:3px}
+  .ehform .ef label{font-size:9.5px;font-weight:800;color:#9db8dd;text-transform:uppercase;letter-spacing:.05em}
+  .ehform input{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.92);border-radius:7px;padding:5px 8px;font:inherit;font-size:12.5px;color:#12335F;width:92px;box-sizing:border-box;font-variant-numeric:tabular-nums}
+  .ehform button{border:none;border-radius:7px;padding:6px 13px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .ehform .go{background:#1c5fb0;color:#fff}
+  .ehform .no{background:rgba(255,255,255,.14);color:#cfdff2}
+  .dsplit{border-top:1px solid var(--hairline);margin:16px 0 14px}
+  .wtable.dsum{max-width:430px}
+  .ph{display:flex;align-items:center;gap:12px;margin:0 0 4px}
+  .ph h3{margin:0}
+  .pietog{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#cfdff2;border-radius:8px;padding:3px 10px;font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;line-height:1.5}
+  .pietog:hover{color:#fff;border-color:rgba(255,255,255,.45)}
+  .piewrap{display:flex;gap:26px;align-items:center;margin:2px 0 16px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--hairline)}
+  .pielegend{display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:#cfdff2}
+  .pleg b{color:#fff;font-variant-numeric:tabular-nums;margin-left:2px}
+  .pleg .mut{color:var(--muted)}
+  .pdot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+  .wtable.dden{max-width:250px;align-self:center}
+  .bulkline{padding:10px 11px 0}
+  .bulkmv{width:100%;border:1px dashed rgba(62,140,140,.6);background:rgba(62,140,140,.13);color:#8fd0d0;border-radius:9px;padding:6px 9px;font:inherit;font-size:11px;font-weight:700;cursor:pointer;line-height:1.35}
+  .bulkmv:hover{background:rgba(62,140,140,.25);color:#c4ecec;border-color:rgba(62,140,140,.9)}
+  .bulkmv[data-armed]{background:rgba(179,54,74,.2);border-color:rgba(216,167,176,.6);color:#f2b8b8}
   .wtable{width:100%;border-collapse:collapse;font-size:12.5px}
   .wtable th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:4px 8px;border-bottom:1px solid var(--hairline)}
   .wtable td{padding:6px 8px;border-bottom:1px dashed var(--hairline);color:#eaf1fb}
@@ -425,6 +464,8 @@ var lastDenied = null;
 var listsArr = [];
 var lastLists = null;
 var editDenyKey = null;
+var editHistKey = null;
+var openDenPie = false;
 var openListForm = false;
 
 function fmtStamp(){
@@ -479,6 +520,13 @@ function subDays(v){
   if(days === null) return '';
   return ' <span class="sd">&middot; ' + days + (days === 1 ? ' day' : ' days') + '</span>';
 }
+function denCat(rec){
+  var t = String(rec.reason || '').toLowerCase();
+  if(!t) return 'No reason logged';
+  if(t.indexOf('resource') !== -1) return 'Over resources';
+  if(t.indexOf('interview') !== -1) return 'Missed interview';
+  return 'Other';
+}
 function apprDays(rec){
   var a = parseDate(rec.appr), s = parseDate(rec.sub);
   if(!a || !s) return null;
@@ -504,7 +552,7 @@ function revert(){
   approvedArr = lastApproved ? clone(lastApproved) : [];
   deniedArr = lastDenied ? clone(lastDenied) : [];
   listsArr = lastLists ? clone(lastLists) : [];
-  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; openListForm = false;
+  openForm = null; editNoteKey = null; editSubKey = null; editApprKey = null; editCoKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; editHistKey = null; openListForm = false;
   render();
 }
 function save(){
@@ -636,7 +684,8 @@ function cardHTML(m, cat){
     html += '<div class="dnform"><div class="dn-label">Denial date</div>'
       + '<input class="dn-date" value="'+esc(todayStr())+'" autocomplete="off">'
       + '<div class="dn-label">Reason (optional)</div>'
-      + '<input class="dn-reason" placeholder="e.g. over income, missing verification" autocomplete="off">'
+      + '<div class="dn-presets"><button type="button" class="dn-preset">Over resources</button><button type="button" class="dn-preset">Missed interview</button></div>'
+      + '<input class="dn-reason" placeholder="or type your own" autocomplete="off">'
       + '<div class="row"><button class="go">&#10007; Denied</button><button class="no">Cancel</button></div></div>';
   }
   if(editNoteKey===key){
@@ -704,9 +753,11 @@ function render(){
     });
     var sendline = c.id==='waiting'
       ? '<div class="sendline">Next escalation send: <b>' + fmtMD(nextSendDate()) + '</b> (first Friday)</div>' : '';
+    var bulkline = (c.id==='awaiting' && c.members.length)
+      ? '<div class="bulkline"><button class="bulkmv" title="When the escalation list comes back from DFCS, move everyone here to No Communication in one click">&#8650; List came back &mdash; move all '+c.members.length+' to No Communication</button></div>' : '';
     return '<div class="col" style="--accent:'+ACCENTS[c.id]+'" data-cat="'+esc(c.id)+'">'
       + '<div class="col-head"><span class="dot"></span><span class="name">'+esc(c.name)+'</span><span class="count">'+c.members.length+'</span></div>'
-      + sendline
+      + sendline + bulkline
       + '<div class="cards">'+cards+'</div>'
       + (openForm===c.id
         ? '<div class="addform"><input class="af-name" placeholder="Last, First" autocomplete="off">'
@@ -752,13 +803,18 @@ function renderInsights(){
   waiting.sort(function(a,b){ return b.d - a.d; });
   var drecs = deniedArr.map(function(r,i){ return {r:r, i:i, at:parseDate(r.den)}; });
   var lw = waiting.length ? waiting[0] : null;
+  var now0 = new Date();
+  var apprMo = recs.filter(function(x){ return x.at && x.at.getFullYear()===now0.getFullYear() && x.at.getMonth()===now0.getMonth(); }).length;
+  var apprYtd = recs.filter(function(x){ return x.at && x.at.getFullYear()===now0.getFullYear(); }).length;
+  var denYtd = drecs.filter(function(x){ return x.at && x.at.getFullYear()===now0.getFullYear(); }).length;
+  var rateYtd = (apprYtd + denYtd) ? Math.round(apprYtd/(apprYtd+denYtd)*100) : null;
   var tiles = [
-    {label:'Members approved', value:approvedArr.length, accent:'#6FAF8B', tip:'Everyone marked approved with the green check'},
+    {label:'Approved this month', value:apprMo, accent:'#8CC7A5', tip:'Members approved in '+MONTH_NAMES[now0.getMonth()]+' '+now0.getFullYear()},
+    {label:'Approved year to date', value:apprYtd, accent:'#6FAF8B', tip:'Members approved since January 1, '+now0.getFullYear()},
     {label:'Members denied', value:deniedArr.length, accent:'#E08A8A', tip:'Everyone marked denied with the red ✗ — each one was moved back to Need to Submit to DFCS to be resubmitted'},
-    {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date'},
-    {label:'Fastest / slowest approval', value:dsList.length ? dsList[0]+' / '+dsList[dsList.length-1] : '—', accent:'#D993AC', tip:'Quickest and longest approval so far, in days'},
-    {label:'Longest active wait', value:lw ? lw.d : '—', accent:'#D9B578', tip: lw ? lw.m.n+' — submitted to DFCS '+lw.m.sub+' and still waiting, in days' : 'Nobody on the board has a DFCS submitted date yet'},
-    {label:'Submitted, not yet approved', value:waiting.length, accent:'#D69A4E', tip:'Members on the board today whose application is submitted to DFCS but not approved yet. Need Corrected Effective Date members are already approved, so they are not counted.'}
+    {label:'Approval rate', value:rateYtd===null?'—':rateYtd+'%', accent:'#D993AC', tip:'Of DFCS decisions this year, how many went our way — year-to-date approvals ÷ (approvals + denials)'},
+    {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date, across all districts'},
+    {label:'Longest active wait', value:lw ? lw.d : '—', accent:'#D9B578', tip: lw ? lw.m.n+' — submitted to DFCS '+lw.m.sub+' and still waiting, in days' : 'Nobody on the board has a DFCS submitted date yet'}
   ];
   var html = '<div class="stats istats">' + tiles.map(function(s){
     return '<div class="stat" title="'+esc(s.tip)+'"><div class="value" style="color:'+s.accent+'">'+s.value+'</div><div class="label">'+esc(s.label)+'</div></div>';
@@ -788,36 +844,91 @@ function renderInsights(){
   function dOrder(k){ return k==='none' ? 99 : (k==='unk' ? 98 : +k); }
   function dlabel(k){ return k==='unk' ? 'County not in district table' : (k==='none' ? 'No county set' : 'District '+k); }
   function dchipHTML(k){ return k==='unk' || k==='none' ? '<span class="dchip unk">D?</span>' : '<span class="dchip">D'+k+'</span>'; }
-  html += '<div class="ipanel"><h3>Approvals by district</h3><div class="isub">Total approvals per DFCS district since we started tracking, with the average days from submission to approval. &ldquo;Submitted, not approved&rdquo; counts members on the board today still waiting on DFCS.</div>';
+  html += '<div class="ipanel"><h3>Approvals by district</h3><div class="isub">Every district at a glance &middot; below, pick a district to see each member&rsquo;s approval &middot; newest first &middot; green under 30 days, amber at 30, red at 60 &middot; hover a row to edit its dates or undo</div>';
   if(!anyCounty){
     html += '<div class="emptymsg">No counties set yet. Click + county on a card to place members in their DFCS district &mdash; district breakdowns will show up here.</div>';
   } else {
     var drows = Object.keys(dmap).map(function(k){
       var rw = dmap[k];
-      return {k:k, apprAll:rw.apprAll, avgA:avgOf(rw.days), nA:rw.days.length,
-        nW:rw.wait.length, maxW:rw.wait.length ? Math.max.apply(null, rw.wait) : null};
+      return {k:k, apprAll:rw.apprAll, avgA:avgOf(rw.days), nA:rw.days.length};
     });
     drows.sort(function(a,b){ return dOrder(a.k) - dOrder(b.k); });
     var most = drows.filter(function(r){ return r.k!=='unk' && r.k!=='none' && r.apprAll; }).sort(function(a,b){ return b.apprAll - a.apprAll; })[0];
     var slow = drows.filter(function(r){ return r.avgA !== null && r.k !== 'unk' && r.k !== 'none'; }).sort(function(a,b){ return b.avgA - a.avgA; })[0];
     var line = [];
-    if(most) line.push('Most approvals: District '+most.k+' ('+most.apprAll+')');
-    if(slow) line.push('Slowest to approve: District '+slow.k+' ('+slow.avgA+' day'+(slow.avgA===1?'':'s')+' average)');
+    if(most) line.push('Most: D'+most.k+' ('+most.apprAll+')');
+    if(slow) line.push('Slowest: D'+slow.k+' ('+slow.avgA+' day'+(slow.avgA===1?'':'s')+' avg)');
     if(line.length) html += '<div class="slowline">'+line.join(' &nbsp;&middot;&nbsp; ')+'</div>';
-    var maxCt = Math.max.apply(null, drows.map(function(r){ return r.apprAll||0; })) || 1;
-    html += '<table class="wtable"><tr><th>District</th><th>Total approved</th><th>Avg days to approval</th><th>Submitted, not approved</th><th>Longest current wait</th></tr>'
+    html += '<table class="wtable dsum"><tr><th>District</th><th>Approved</th><th>Avg days</th></tr>'
       + drows.map(function(r){
-        var cCell = r.apprAll
-          ? '<div class="dbarwrap"><div class="dbar" style="width:'+Math.max(4, Math.round(r.apprAll/maxCt*100))+'px"></div><b>'+r.apprAll+'</b>'+(r.nA < r.apprAll ? ' <span class="mut">('+r.nA+' timed)</span>' : '')+'</div>'
-          : '<span class="mut">&mdash;</span>';
-        var mxCell = r.maxW === null ? '<td class="mut">&mdash;</td>'
-          : '<td><span class="agebadge '+(r.maxW>=60?'late':(r.maxW>=30?'warn':'ok'))+'">'+r.maxW+(r.maxW===1?' day':' days')+'</span></td>';
-        return '<tr><td>'+dchipHTML(r.k)+' '+esc(dlabel(r.k))+'</td>'
-          + '<td>'+cCell+'</td>'
-          + '<td class="mut">'+(r.avgA===null?'&mdash;':'<b>'+r.avgA+'</b>'+(r.avgA===1?' day':' days'))+'</td>'
-          + '<td class="mut">'+(r.nW || '&mdash;')+'</td>'
-          + mxCell + '</tr>';
+        return '<tr><td>'+dchipHTML(r.k)+'</td>'
+          + '<td>'+(r.apprAll ? '<b>'+r.apprAll+'</b>'+(r.nA < r.apprAll ? ' <span class="mut">('+r.nA+' timed)</span>' : '') : '<span class="mut">&mdash;</span>')+'</td>'
+          + '<td class="mut">'+(r.avgA===null?'&mdash;':'<b>'+r.avgA+'</b>')+'</td></tr>';
       }).join('') + '</table>';
+  }
+  html += '<div class="dsplit"></div>';
+  var byNew = recs.slice().sort(function(a,b){
+    var x = a.at ? a.at.getTime() : 0, y = b.at ? b.at.getTime() : 0;
+    return y - x;
+  });
+  if(!byNew.length){
+    html += '<div class="emptymsg">No approvals logged yet. When DFCS approves a member, hover their card on the board and click the green &#10003; &mdash; their approval time will show up here.</div>';
+  } else {
+    var tgroups = {};
+    byNew.forEach(function(x){
+      var gk = distOf(x.r.co);
+      if(!tgroups[gk]) tgroups[gk] = [];
+      tgroups[gk].push(x);
+    });
+    var gkeys = Object.keys(tgroups).sort(function(a,b){ return dOrder(a) - dOrder(b); });
+    if(!insightsDist || !tgroups[insightsDist]) insightsDist = gkeys[0];
+    html += '<div class="dtabs">' + gkeys.map(function(gk){
+      var lbl = gk==='unk' ? 'D?' : (gk==='none' ? 'No county' : 'District '+gk);
+      return '<button class="dtab'+(gk===insightsDist?' on':'')+'" data-dk="'+gk+'" title="Show '+esc(dlabel(gk))+'">'+lbl+'<span class="dtn">'+tgroups[gk].length+'</span></button>';
+    }).join('') + '</div>';
+    var list = tgroups[insightsDist];
+    var gdays = list.map(function(x){ return x.d; }).filter(function(d){ return d !== null; });
+    var gavg = gdays.length ? Math.round(gdays.reduce(function(a,b){ return a+b; },0)/gdays.length) : null;
+    var gmax = gdays.length ? Math.max.apply(null, gdays) : 0;
+    var gmin = gdays.length ? Math.min.apply(null, gdays) : 0;
+    var untimed = list.length - gdays.length;
+    html += '<div class="dsummary"><span><b>'+list.length+'</b> approved</span>'
+      + (gavg!==null ? '<span>average <b>'+gavg+'</b> day'+(gavg===1?'':'s')+'</span><span>fastest <b>'+gmin+'</b></span><span>slowest <b>'+gmax+'</b></span>' : '')
+      + (untimed ? '<span><b>'+untimed+'</b> not timed (no DFCS date)</span>' : '')
+      + '</div>';
+    html += list.map(function(x){ return rowHTML(x); }).join('');
+  }
+  function rowHTML(x){
+      var r = x.r;
+      var dayCell;
+      if(x.d !== null){
+        var spd = x.d >= 60 ? 'late' : (x.d >= 30 ? 'warn' : 'ok');
+        dayCell = '<span class="agebadge '+spd+'">'+x.d+(x.d===1?' day':' days')+'</span>';
+      } else {
+        dayCell = '<span class="bdays mut">no DFCS date &mdash; not timed</span>';
+      }
+      var dtag = '';
+      if(r.co){
+        var ci3 = countyInfo(r.co);
+        dtag = ' <span class="bi">&middot; '+esc(ci3.name)+'</span>';
+      }
+      var out = '<div class="brow">'
+        + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+(r.mid ? ' <span class="bi">&middot; Medicaid '+esc(r.mid)+'</span>' : '')+dtag+'</div>'
+        + '<div class="bdates">'+(r.sub ? 'DFCS '+esc(r.sub)+' &rarr; ' : '')+'&#10003; approved '+esc(r.appr)+(r.eff ? ' &middot; effective '+esc(r.eff) : '')+'</div></div>'
+        + '<div class="bwrap">'+dayCell+'</div>'
+        + '<div class="bacts"><button class="ehedit" data-ei="'+x.i+'" title="Fix the DFCS submitted, approval, or effective date without undoing the approval">&#9998; Edit dates</button>'
+        + '<button class="undo" data-ai="'+x.i+'" title="Send back to the board">&#8617; Undo</button>'
+        + '<button class="adel danger" data-ai="'+x.i+'" title="Delete from approval history">&times;</button></div>'
+        + '</div>';
+      if(editHistKey === x.i){
+        out += '<div class="ehform" data-ei="'+x.i+'">'
+          + '<div class="ef"><label>DFCS submitted</label><input class="eh-sub" value="'+esc(r.sub||'')+'" placeholder="M/D/YY" autocomplete="off"></div>'
+          + '<div class="ef"><label>Approval date</label><input class="eh-appr" value="'+esc(r.appr||'')+'" placeholder="M/D/YY" autocomplete="off"></div>'
+          + '<div class="ef"><label>Effective date</label><input class="eh-eff" value="'+esc(r.eff||'')+'" placeholder="optional" autocomplete="off"></div>'
+          + '<button class="go">Save</button><button class="no">Cancel</button>'
+          + '</div>';
+      }
+      return out;
   }
   html += '</div>';
   var mstats = {};
@@ -865,7 +976,50 @@ function renderInsights(){
     html += '<button class="listadd" title="Record a list that went out so denial and approval rates can be measured against it">+ Log a list that went out</button>';
   }
   html += '</div></div>';
-  html += '<div class="ipanel"><h3>Denials</h3><div class="isub">Members DFCS denied, newest first &middot; each one was moved back to Need to Submit with a &ldquo;waiting to resub month out&rdquo; note &middot; hover a row to remove it from history</div>';
+  html += '<div class="ipanel"><div class="ph"><h3>Denials</h3><button class="pietog">'+(openDenPie ? '&#9662; Hide breakdown' : '&#9656; Breakdown &middot; reasons &amp; districts')+'</button></div><div class="isub">Members DFCS denied, newest first &middot; each one was moved back to Need to Submit with a &ldquo;waiting to resub month out&rdquo; note &middot; hover a row to remove it from history</div>';
+  if(openDenPie){
+    if(!drecs.length){
+      html += '<div class="emptymsg">No denials logged yet &mdash; nothing to break down.</div>';
+    } else {
+      var DEN_CATS = [
+        {k:'Over resources', c:'#E08A8A'},
+        {k:'Missed interview', c:'#D9B578'},
+        {k:'Other', c:'#5B93D0'},
+        {k:'No reason logged', c:'#7d95b8'}
+      ];
+      var dcounts = {};
+      drecs.forEach(function(x){ var ck = denCat(x.r); dcounts[ck] = (dcounts[ck]||0)+1; });
+      var dslices = DEN_CATS.filter(function(c){ return dcounts[c.k]; });
+      var dtotal = drecs.length;
+      var R = 40, CIRC = 2*Math.PI*R, off = CIRC/4;
+      var segs = '';
+      dslices.forEach(function(c){
+        var frac = dcounts[c.k]/dtotal;
+        var len = frac*CIRC;
+        var gap = dslices.length > 1 ? 3 : 0;
+        segs += '<circle r="'+R+'" cx="60" cy="60" fill="none" stroke="'+c.c+'" stroke-width="20" stroke-dasharray="'+Math.max(0.5,(len-gap)).toFixed(2)+' '+(CIRC-Math.max(0.5,(len-gap))).toFixed(2)+'" stroke-dashoffset="'+off.toFixed(2)+'"></circle>';
+        off -= len;
+      });
+      html += '<div class="piewrap"><svg width="150" height="150" viewBox="0 0 120 120" role="img" aria-label="Denials by reason">'+segs
+        + '<text x="60" y="58" text-anchor="middle" fill="#fff" font-size="22" font-weight="800" font-family="Nunito,sans-serif">'+dtotal+'</text>'
+        + '<text x="60" y="74" text-anchor="middle" fill="#8fa9c6" font-size="9" font-weight="700">DENIED</text></svg>'
+        + '<div class="pielegend">'
+        + dslices.map(function(c){
+            var n = dcounts[c.k];
+            return '<div class="pleg"><span class="pdot" style="background:'+c.c+'"></span>'+esc(c.k)+' <b>'+n+'</b> <span class="mut">('+Math.round(n/dtotal*100)+'%)</span></div>';
+          }).join('')
+        + '</div>';
+      var dendist = {};
+      drecs.forEach(function(x){ var dk2 = distOf(x.r.co); dendist[dk2] = (dendist[dk2]||0)+1; });
+      var dendk = Object.keys(dendist).sort(function(a,b){ return dOrder(a)-dOrder(b); });
+      html += '<table class="wtable dsum dden"><tr><th>District</th><th>Denied</th></tr>'
+        + dendk.map(function(k){
+            return '<tr><td>'+dchipHTML(k)+(k==='unk'||k==='none' ? ' <span class="mut">'+esc(dlabel(k))+'</span>' : '')+'</td>'
+              + '<td><b>'+dendist[k]+'</b> <span class="mut">('+Math.round(dendist[k]/dtotal*100)+'%)</span></td></tr>';
+          }).join('') + '</table>';
+      html += '</div>';
+    }
+  }
   if(!drecs.length){
     html += '<div class="emptymsg">No denials logged yet. If DFCS denies a member, hover their card on the board and click the red &#10007; &mdash; the denial is logged here and the member moves back to Need to Submit to DFCS.</div>';
   } else {
@@ -889,63 +1043,6 @@ function renderInsights(){
     }).join('');
   }
   html += '</div>';
-  var byNew = recs.slice().sort(function(a,b){
-    var x = a.at ? a.at.getTime() : 0, y = b.at ? b.at.getTime() : 0;
-    return y - x;
-  });
-  var maxd = dsList.length ? dsList[dsList.length-1] : 0;
-  html += '<div class="ipanel"><h3>Time to approval, by district</h3><div class="isub">Pick a district to see how long each member&rsquo;s approval took &middot; newest approval first &middot; hover a row to undo</div>';
-  if(!byNew.length){
-    html += '<div class="emptymsg">No approvals logged yet. When DFCS approves a member, hover their card on the board and click the green &#10003; &mdash; their approval time will show up here.</div>';
-  } else {
-    var tgroups = {};
-    byNew.forEach(function(x){
-      var gk = distOf(x.r.co);
-      if(!tgroups[gk]) tgroups[gk] = [];
-      tgroups[gk].push(x);
-    });
-    var gkeys = Object.keys(tgroups).sort(function(a,b){ return dOrder(a) - dOrder(b); });
-    if(!insightsDist || !tgroups[insightsDist]) insightsDist = gkeys[0];
-    html += '<div class="dtabs">' + gkeys.map(function(gk){
-      var lbl = gk==='unk' ? 'D?' : (gk==='none' ? 'No county' : 'District '+gk);
-      return '<button class="dtab'+(gk===insightsDist?' on':'')+'" data-dk="'+gk+'" title="Show '+esc(dlabel(gk))+'">'+lbl+'<span class="dtn">'+tgroups[gk].length+'</span></button>';
-    }).join('') + '</div>';
-    var list = tgroups[insightsDist];
-    var gdays = list.map(function(x){ return x.d; }).filter(function(d){ return d !== null; });
-    var gavg = gdays.length ? Math.round(gdays.reduce(function(a,b){ return a+b; },0)/gdays.length) : null;
-    var gmax = gdays.length ? Math.max.apply(null, gdays) : 0;
-    var gmin = gdays.length ? Math.min.apply(null, gdays) : 0;
-    var untimed = list.length - gdays.length;
-    html += '<div class="dsummary"><span><b>'+list.length+'</b> approved</span>'
-      + (gavg!==null ? '<span>average <b>'+gavg+'</b> day'+(gavg===1?'':'s')+'</span><span>fastest <b>'+gmin+'</b></span><span>slowest <b>'+gmax+'</b></span>' : '')
-      + (untimed ? '<span><b>'+untimed+'</b> not timed (no DFCS date)</span>' : '')
-      + '</div>';
-    html += list.map(function(x){ return rowHTML(x, gmax); }).join('');
-  }
-  function rowHTML(x, localMax){
-      var r = x.r;
-      var scale = localMax || maxd;
-      var pct = (x.d !== null && scale > 0) ? Math.max(2, Math.round(x.d / scale * 100)) : 0;
-      var barCell;
-      if(x.d !== null){
-        barCell = '<div class="bfill" style="width:'+pct+'%"></div><span class="bdays">'+x.d+(x.d===1?' day':' days')+'</span>';
-      } else {
-        barCell = '<span class="bdays mut">no DFCS date &mdash; not timed</span>';
-      }
-      var dtag = '';
-      if(r.co){
-        var ci3 = countyInfo(r.co);
-        dtag = ' <span class="bi">&middot; '+esc(ci3.name)+'</span>';
-      }
-      return '<div class="brow">'
-        + '<div class="who"><div class="bn">'+esc(r.n)+' <span class="bi">'+esc(r.id)+'</span>'+(r.mid ? ' <span class="bi">&middot; Medicaid '+esc(r.mid)+'</span>' : '')+dtag+'</div>'
-        + '<div class="bdates">'+(r.sub ? 'DFCS '+esc(r.sub)+' &rarr; ' : '')+'&#10003; '+esc(r.appr)+(r.eff ? ' &middot; effective '+esc(r.eff) : '')+'</div></div>'
-        + '<div class="bwrap">'+barCell+'</div>'
-        + '<div class="bacts"><button class="undo" data-ai="'+x.i+'" title="Send back to the board">&#8617; Undo</button>'
-        + '<button class="adel danger" data-ai="'+x.i+'" title="Delete from approval history">&times;</button></div>'
-        + '</div>';
-  }
-  html += '</div>';
   var withMonth = recs.filter(function(x){ return x.at; });
   if(withMonth.length){
     var byMonth = {};
@@ -964,37 +1061,20 @@ function renderInsights(){
       return {k:k, n:b.n, avg:b.nt ? Math.round(b.sum/b.nt) : null, min:b.min};
     });
     var maxn = Math.max.apply(null, mrows.map(function(x){ return x.n; })) || 1;
-    html += '<div class="ipanel"><h3>Approvals per month</h3><div class="isub">How many members were approved each month &middot; under each bar: that month&rsquo;s average days to approval and its quickest approval</div><div class="trend">'
+    html += '<div class="ipanel"><h3>Approvals per month</h3><div class="isub">Bars count how many members were approved each month &middot; the table alongside shows each month&rsquo;s average days to approval and its quickest approval</div><div class="permo"><div class="trend">'
       + mrows.map(function(x){
         var h = Math.max(6, Math.round(x.n / maxn * 110));
         return '<div class="tcol"><span class="tavg">'+x.n+'</span><div class="tbar" style="height:'+h+'px"></div>'
-          + '<span class="tmon">'+MONTH_NAMES[x.k%100]+' &rsquo;'+String(Math.floor(x.k/100)).slice(-2)+'</span>'
-          + '<span class="tn">'+(x.avg===null ? 'not timed' : 'avg '+x.avg+' day'+(x.avg===1?'':'s')+' &middot; fastest '+x.min)+'</span></div>';
-      }).join('') + '</div></div>';
+          + '<span class="tmon">'+MONTH_NAMES[x.k%100]+' &rsquo;'+String(Math.floor(x.k/100)).slice(-2)+'</span></div>';
+      }).join('') + '</div>';
+    html += '<table class="motable"><tr><th>Month</th><th>Avg days</th><th>Fastest</th></tr>'
+      + mrows.map(function(x){
+        var lblM2 = MONTH_NAMES[x.k%100]+' &rsquo;'+String(Math.floor(x.k/100)).slice(-2);
+        return '<tr><td class="mo">'+lblM2+'</td>'
+          + '<td>'+(x.avg===null ? '<span class="mut">not timed</span>' : '<span class="mavg">'+x.avg+'</span><span class="munit">'+(x.avg===1?'day':'days')+'</span>')+'</td>'
+          + '<td>'+(x.min===null ? '<span class="mut">&mdash;</span>' : '<span class="mfast">'+x.min+'</span><span class="munit">'+(x.min===1?'day':'days')+'</span>')+'</td></tr>';
+      }).join('') + '</table></div></div>';
   }
-  html += '<div class="ipanel"><h3>Submitted, not yet approved</h3><div class="isub">Every member on the board whose application has been submitted to DFCS but not approved yet, longest wait first &middot; amber at 30 days, red at 60 &middot; Need Corrected Effective Date members are already approved and not counted here</div>';
-  if(!waiting.length){
-    html += '<div class="emptymsg">Nobody on the board has a DFCS submitted date yet. Set one with the + DFCS date button on a card and they will be timed here.</div>';
-  } else {
-    html += '<table class="wtable"><tr><th>Member</th><th>ID</th><th>District</th><th>Section</th><th>Submitted</th><th>Waiting</th></tr>'
-      + waiting.map(function(w){
-        var cls = w.d >= 60 ? 'late' : (w.d >= 30 ? 'warn' : 'ok');
-        var dcell = '<span class="mut">&mdash;</span>';
-        if(w.m.co){
-          var ci4 = countyInfo(w.m.co);
-          dcell = '<span class="dchip'+(ci4.d?'':' unk')+'">'+(ci4.d ? 'D'+ci4.d : 'D?')+'</span> <span class="mut">'+esc(ci4.name)+'</span>';
-        }
-        return '<tr><td>'+esc(w.m.n)+'</td><td class="mut">'+esc(w.m.id)+(w.m.mid ? '<span class="tmid">'+esc(w.m.mid)+'</span>' : '')+'</td>'
-          + '<td>'+dcell+'</td>'
-          + '<td><span class="coltag"><span class="mdot2" style="background:'+ACCENTS[w.c.id]+'"></span>'+esc(w.c.name)+(w.m.g ? ' &middot; '+esc(w.m.g) : '')+'</span></td>'
-          + '<td class="mut">'+esc(w.m.sub)+'</td>'
-          + '<td><span class="agebadge '+cls+'">'+w.d+(w.d===1?' day':' days')+'</span></td></tr>';
-      }).join('') + '</table>';
-  }
-  if(nosub){
-    html += '<div class="emptymsg" style="margin-top:8px">'+nosub+' member'+(nosub===1?' has':'s have')+' no DFCS submitted date yet &mdash; they are not being timed.</div>';
-  }
-  html += '</div>';
   box.innerHTML = html;
 }
 function setView(v){
@@ -1103,6 +1183,13 @@ document.addEventListener('click', function(e){
     if(e.target.closest('.ms') || e.target.closest('.ms-add')){ openStatusMenu(e.target.closest('.ms') || e.target.closest('.ms-add'), key); return; }
     if(e.target.closest('.ap')){ editApprKey = key; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; editDenyKey = null; render(); return; }
     if(e.target.closest('.dn')){ editDenyKey = key; editApprKey = null; editNoteKey = null; editSubKey = null; editDatesKey = null; editMidKey = null; editCoKey = null; render(); return; }
+    var dnp = e.target.closest('.dn-preset');
+    if(dnp){
+      var dnri = card.querySelector('.dnform .dn-reason');
+      if(dnri){ dnri.value = dnp.textContent; }
+      card.querySelectorAll('.dn-preset').forEach(function(b){ b.className = 'dn-preset' + (b === dnp ? ' on' : ''); });
+      return;
+    }
     if(e.target.closest('.dnform .go')){
       var fdn = findMember(key);
       if(fdn){
@@ -1278,7 +1365,8 @@ document.addEventListener('click', function(e){
     }
   }
   var dtb = e.target.closest('button[data-dk]');
-  if(dtb){ insightsDist = dtb.getAttribute('data-dk'); renderInsights(); return; }
+  if(dtb){ insightsDist = dtb.getAttribute('data-dk'); editHistKey = null; renderInsights(); return; }
+  if(e.target.closest('.pietog')){ openDenPie = !openDenPie; renderInsights(); return; }
   if(e.target.closest('.listadd')){ openListForm = true; renderInsights(); var lfi = document.querySelector('.listform .lf-date'); if(lfi) lfi.focus(); return; }
   if(e.target.closest('.listform .go')){
     var lfdEl = document.querySelector('.listform .lf-date');
@@ -1320,11 +1408,44 @@ document.addEventListener('click', function(e){
     }
     return;
   }
+  var eb = e.target.closest('button.ehedit');
+  if(eb){
+    editHistKey = +eb.getAttribute('data-ei');
+    renderInsights();
+    var efi = document.querySelector('.ehform .eh-sub');
+    if(efi) efi.focus();
+    return;
+  }
+  var ef = e.target.closest('.ehform');
+  if(ef){
+    if(e.target.closest('.go')){
+      var ei = +ef.getAttribute('data-ei');
+      var rec3 = approvedArr[ei];
+      if(rec3){
+        var vSub = ef.querySelector('.eh-sub').value.trim();
+        var vAppr = ef.querySelector('.eh-appr').value.trim();
+        var vEff = ef.querySelector('.eh-eff').value.trim();
+        if(!vAppr || !parseDate(vAppr)){ showToast('Enter the approval date as M/D/YY'); return; }
+        if(vSub && !parseDate(vSub)){ showToast('Enter the DFCS submitted date as M/D/YY'); return; }
+        if(vEff && !parseDate(vEff)){ showToast('Enter the effective date as M/D/YY'); return; }
+        rec3.appr = vAppr;
+        if(vSub){ rec3.sub = vSub; } else { delete rec3.sub; }
+        if(vEff){ rec3.eff = vEff; } else { delete rec3.eff; }
+        editHistKey = null; saveAll(); render();
+        var nd2 = apprDays(rec3);
+        showToast(rec3.n + '  ·  dates updated' + (nd2 !== null ? '  ·  ' + nd2 + (nd2===1?' day':' days') + ' to approval' : ''));
+      }
+      return;
+    }
+    if(e.target.closest('.no')){ editHistKey = null; renderInsights(); return; }
+    return;
+  }
   var ib = e.target.closest('button[data-ai]');
   if(ib){
     var ai = +ib.getAttribute('data-ai');
     var rec2 = approvedArr[ai];
     if(rec2){
+      editHistKey = null;
       if(ib.classList.contains('undo')){
         var destc = data.categories.find(function(c){ return c.id === rec2.from; }) || data.categories[0];
         var back = {n:rec2.n, id:rec2.id};
@@ -1354,6 +1475,25 @@ document.addEventListener('click', function(e){
   var col = e.target.closest('.col');
   if(col){
     var cid = col.getAttribute('data-cat');
+    var bmv = e.target.closest('.bulkmv');
+    if(bmv){
+      var srcC = data.categories.find(function(x){ return x.id==='awaiting'; });
+      var dstC = data.categories.find(function(x){ return x.id==='nocomm'; });
+      if(srcC && dstC && srcC.members.length){
+        if(bmv.getAttribute('data-armed')){
+          var nMoved = srcC.members.length;
+          srcC.members.forEach(function(mm){ dstC.members.push(mm); });
+          srcC.members = [];
+          save(); render();
+          showToast(nMoved + ' member' + (nMoved===1?'':'s') + '  →  ' + dstC.name);
+        } else {
+          bmv.setAttribute('data-armed','1');
+          bmv.innerHTML = 'Sure? Move all ' + srcC.members.length + ' to No Communication';
+          setTimeout(function(){ if(bmv.isConnected){ bmv.removeAttribute('data-armed'); bmv.innerHTML = '&#8650; List came back &mdash; move all ' + srcC.members.length + ' to No Communication'; } }, 3000);
+        }
+      }
+      return;
+    }
     if(e.target.closest('.addbtn')){ openForm = cid; render(); return; }
     if(e.target.closest('.addform .no')){ openForm = null; render(); return; }
     if(e.target.closest('.addform .go')){
