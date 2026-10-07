@@ -51,7 +51,7 @@
     box-shadow:0 8px 22px rgba(0,0,0,.22);padding:15px 17px}
   .stat .value{font-family:'Nunito',sans-serif;font-weight:800;font-size:32px;line-height:.95;font-variant-numeric:tabular-nums}
   .stat .label{font-size:12px;color:var(--muted);margin-top:7px;font-weight:600;letter-spacing:.01em}
-  .board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:start}
+  .board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;align-items:start}
   .col{background:var(--col-bg);border:1px solid rgba(255,255,255,.09);border-radius:14px;
     box-shadow:0 8px 22px rgba(0,0,0,.25);overflow:visible;display:flex;flex-direction:column}
   .col-head{display:flex;align-items:center;gap:8px;padding:14px 14px 11px;border-bottom:1px solid rgba(255,255,255,.10)}
@@ -261,6 +261,12 @@
   .dtab.on .dtn{background:rgba(0,0,0,.15)}
   .dsummary{display:flex;gap:6px 20px;flex-wrap:wrap;font-size:12px;color:#8fa9c6;margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid var(--hairline)}
   .dsummary b{color:#fff;font-variant-numeric:tabular-nums}
+  .mhl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:#cfdff2;margin:0 0 8px;padding:8px 12px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid var(--hairline)}
+  .mhl .tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:7px;padding:2px 8px;white-space:nowrap}
+  .mhl.fast .tag{background:rgba(140,199,165,.18);color:#8CC7A5}
+  .mhl.slow .tag{background:rgba(224,138,138,.18);color:#E08A8A}
+  .mhl b{color:#fff;font-variant-numeric:tabular-nums}
+  .mhl .bi{font-size:11px;color:var(--muted)}
   .irow{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
   .irow .ipanel{min-width:0}
   .irow .pnarrow{flex:1 1 250px}
@@ -383,6 +389,7 @@ var DEFAULT_DATA = {
       {n:"Gaines, Edythe",id:"184799",ms:"None"},
       {n:"Beamon, Jennifer",id:"90491",ms:"None",note:"Med App sent",noteDate:"7/22/26"}
     ]},
+    {id:"resub",name:"Waiting to Resubmit",members:[]},
     {id:"waiting",name:"Waiting to Submit Escalation List",members:[
       {n:"Mccollum-Parks, Deborah",id:"94396",ms:"QMB"},{n:"Walker, James",id:"483582",ms:"QMB"},{n:"Jefferson, Lucille",id:"98690",ms:"QMB"},
       {n:"Davis, Mary",id:"89341",ms:"QMB"},{n:"Tribble, Gloria",id:"94219",ms:"QMB"},{n:"Dodson, Sylinda",id:"485411",ms:"QMB"},
@@ -413,7 +420,7 @@ var DEFAULT_DATA = {
     ]}
   ]
 };
-var ACCENTS = {submit:'#C0873C',waiting:'#3E72A8',awaiting:'#3E8C8C',nocomm:'#B0607F',active:'#4E8B62',corrdate:'#6E63A6'};
+var ACCENTS = {submit:'#C0873C',resub:'#B3485A',waiting:'#3E72A8',awaiting:'#3E8C8C',nocomm:'#B0607F',active:'#4E8B62',corrdate:'#6E63A6'};
 var DISTRICT_COUNTIES = {
   1:['Catoosa','Chattooga','Cherokee','Dade','Fannin','Gilmer','Gordon','Murray','Pickens','Walker','Whitfield','Bartow','Douglas','Floyd','Haralson','Paulding','Polk','Cobb'],
   2:['Banks','Dawson','Forsyth','Franklin','Habersham','Hall','Hart','Lumpkin','Rabun','Stephens','Towns','Union','White','Barrow','Clarke','Elbert','Greene','Jackson','Madison','Morgan','Newton','Oconee','Oglethorpe','Rockdale','Walton','Jasper','Gwinnett'],
@@ -454,6 +461,7 @@ var editDatesKey = null;
 var editMidKey = null;
 var expandedNotes = {};
 var insightsDist = null;
+var insightsMonth = null;
 var editApprKey = null;
 var editCoKey = null;
 var view = 'board';
@@ -794,7 +802,7 @@ function renderInsights(){
   var waiting = [];
   var nosub = 0;
   data.categories.forEach(function(c){
-    if(c.id==='corrdate') return;
+    if(c.id==='corrdate' || c.id==='resub') return;
     c.members.forEach(function(m){
       var d = daysSince(m.sub);
       if(m.sub && d !== null) waiting.push({m:m, c:c, d:d}); else nosub++;
@@ -811,7 +819,7 @@ function renderInsights(){
   var tiles = [
     {label:'Approved this month', value:apprMo, accent:'#8CC7A5', tip:'Members approved in '+MONTH_NAMES[now0.getMonth()]+' '+now0.getFullYear()},
     {label:'Approved year to date', value:apprYtd, accent:'#6FAF8B', tip:'Members approved since January 1, '+now0.getFullYear()},
-    {label:'Members denied', value:deniedArr.length, accent:'#E08A8A', tip:'Everyone marked denied with the red ✗ — each one was moved back to Need to Submit to DFCS to be resubmitted'},
+    {label:'Members denied', value:deniedArr.length, accent:'#E08A8A', tip:'Everyone marked denied with the red ✗ — each one moves to Waiting to Resubmit while what&rsquo;s needed for the new application is gathered'},
     {label:'Approval rate', value:rateYtd===null?'—':rateYtd+'%', accent:'#D993AC', tip:'Of DFCS decisions this year, how many went our way — year-to-date approvals ÷ (approvals + denials)'},
     {label:'Average days to approval', value:avg===null?'—':avg, accent:'#5B93D0', tip:'Average days from the DFCS submitted date to the approval date, across all districts'},
     {label:'Longest active wait', value:lw ? lw.d : '—', accent:'#D9B578', tip: lw ? lw.m.n+' — submitted to DFCS '+lw.m.sub+' and still waiting, in days' : 'Nobody on the board has a DFCS submitted date yet'}
@@ -976,7 +984,7 @@ function renderInsights(){
     html += '<button class="listadd" title="Record a list that went out so denial and approval rates can be measured against it">+ Log a list that went out</button>';
   }
   html += '</div></div>';
-  html += '<div class="ipanel"><div class="ph"><h3>Denials</h3><button class="pietog">'+(openDenPie ? '&#9662; Hide breakdown' : '&#9656; Breakdown &middot; reasons &amp; districts')+'</button></div><div class="isub">Members DFCS denied, newest first &middot; each one was moved back to Need to Submit with a &ldquo;waiting to resub month out&rdquo; note &middot; hover a row to remove it from history</div>';
+  html += '<div class="ipanel"><div class="ph"><h3>Denials</h3><button class="pietog">'+(openDenPie ? '&#9662; Hide breakdown' : '&#9656; Breakdown &middot; reasons &amp; districts')+'</button></div><div class="isub">Members DFCS denied, newest first &middot; each one was moved to Waiting to Resubmit with a &ldquo;waiting to resub month out&rdquo; note &middot; hover a row to remove it from history</div>';
   if(openDenPie){
     if(!drecs.length){
       html += '<div class="emptymsg">No denials logged yet &mdash; nothing to break down.</div>';
@@ -1021,7 +1029,7 @@ function renderInsights(){
     }
   }
   if(!drecs.length){
-    html += '<div class="emptymsg">No denials logged yet. If DFCS denies a member, hover their card on the board and click the red &#10007; &mdash; the denial is logged here and the member moves back to Need to Submit to DFCS.</div>';
+    html += '<div class="emptymsg">No denials logged yet. If DFCS denies a member, hover their card on the board and click the red &#10007; &mdash; the denial is logged here and the member moves to Waiting to Resubmit.</div>';
   } else {
     var dby = drecs.slice().sort(function(a,b){
       var x = a.at ? a.at.getTime() : 0, y = b.at ? b.at.getTime() : 0;
@@ -1075,6 +1083,52 @@ function renderInsights(){
           + '<td>'+(x.min===null ? '<span class="mut">&mdash;</span>' : '<span class="mfast">'+x.min+'</span><span class="munit">'+(x.min===1?'day':'days')+'</span>')+'</td></tr>';
       }).join('') + '</table></div></div>';
   }
+  html += '<div class="ipanel"><h3>Monthly breakdown</h3><div class="isub">Pick a month to see everyone approved in it &middot; newest first &middot; each month calls out its quickest and its longest approval &middot; hover a row to edit its dates or undo</div>';
+  if(!withMonth.length){
+    html += '<div class="emptymsg">No approvals logged yet. When DFCS approves a member, hover their card on the board and click the green &#10003; &mdash; they&rsquo;ll show up here under their approval month.</div>';
+  } else {
+    var mgroups = {};
+    withMonth.forEach(function(x){
+      var k = x.at.getFullYear()*100 + x.at.getMonth();
+      if(!mgroups[k]) mgroups[k] = [];
+      mgroups[k].push(x);
+    });
+    var mbKeys = Object.keys(mgroups).map(Number).sort(function(a,b){ return b-a; });
+    if(insightsMonth === null || !mgroups[insightsMonth]) insightsMonth = mbKeys[0];
+    function moLabel(k){ return MONTH_NAMES[k%100]+' &rsquo;'+String(Math.floor(k/100)).slice(-2); }
+    html += '<div class="dtabs">' + mbKeys.map(function(k){
+      return '<button class="dtab'+(k===insightsMonth?' on':'')+'" data-mk="'+k+'" title="Show everyone approved in '+MONTH_NAMES[k%100]+' '+Math.floor(k/100)+'">'+moLabel(k)+'<span class="dtn">'+mgroups[k].length+'</span></button>';
+    }).join('') + '</div>';
+    var mlist = mgroups[insightsMonth].slice().sort(function(a,b){ return b.at.getTime() - a.at.getTime(); });
+    var mq = null, ml = null, msum = 0, mnt = 0;
+    mlist.forEach(function(x){
+      if(x.d === null) return;
+      msum += x.d; mnt++;
+      if(!mq || x.d < mq.d) mq = x;
+      if(!ml || x.d > ml.d) ml = x;
+    });
+    var mavg2 = mnt ? Math.round(msum/mnt) : null;
+    var muntimed = mlist.length - mnt;
+    html += '<div class="dsummary"><span><b>'+mlist.length+'</b> approved in '+MONTH_NAMES[insightsMonth%100]+' '+Math.floor(insightsMonth/100)+'</span>'
+      + (mavg2 !== null ? '<span>average <b>'+mavg2+'</b> day'+(mavg2===1?'':'s')+'</span>' : '')
+      + (muntimed ? '<span><b>'+muntimed+'</b> not timed (no DFCS date)</span>' : '')
+      + '</div>';
+    function mhlHTML(x, cls, tag){
+      var r4 = x.r;
+      return '<div class="mhl '+cls+'"><span class="tag">'+tag+'</span><span>'+esc(r4.n)+' <span class="bi">'+esc(r4.id)+'</span></span>'
+        + '<span><b>'+x.d+'</b> day'+(x.d===1?'':'s')+'</span>'
+        + '<span class="bi">DFCS '+esc(r4.sub)+' &rarr; approved '+esc(r4.appr)+'</span></div>';
+    }
+    if(mq && ml && mq.i === ml.i){
+      html += mhlHTML(mq, 'fast', 'Quickest &amp; longest');
+    } else {
+      if(mq) html += mhlHTML(mq, 'fast', 'Quickest');
+      if(ml) html += mhlHTML(ml, 'slow', 'Longest');
+    }
+    if(!mnt) html += '<div class="emptymsg">None of this month&rsquo;s approvals have a DFCS submitted date, so there&rsquo;s no quickest or longest to show.</div>';
+    html += mlist.map(function(x){ return rowHTML(x); }).join('');
+  }
+  html += '</div>';
   box.innerHTML = html;
 }
 function setView(v){
@@ -1204,7 +1258,7 @@ document.addEventListener('click', function(e){
         if(fdn.m.sub) drec.sub = fdn.m.sub;
         fdn.cat.members.splice(fdn.idx,1);
         deniedArr.push(drec);
-        var subCat = data.categories.find(function(c){ return c.id==='submit'; });
+        var subCat = data.categories.find(function(c){ return c.id==='resub'; }) || data.categories[0];
         var resub = {n:fdn.m.n, id:fdn.m.id};
         if(fdn.m.ms) resub.ms = fdn.m.ms;
         if(fdn.m.mid) resub.mid = fdn.m.mid;
@@ -1366,6 +1420,8 @@ document.addEventListener('click', function(e){
   }
   var dtb = e.target.closest('button[data-dk]');
   if(dtb){ insightsDist = dtb.getAttribute('data-dk'); editHistKey = null; renderInsights(); return; }
+  var mtb = e.target.closest('button[data-mk]');
+  if(mtb){ insightsMonth = +mtb.getAttribute('data-mk'); editHistKey = null; renderInsights(); return; }
   if(e.target.closest('.pietog')){ openDenPie = !openDenPie; renderInsights(); return; }
   if(e.target.closest('.listadd')){ openListForm = true; renderInsights(); var lfi = document.querySelector('.listform .lf-date'); if(lfi) lfi.focus(); return; }
   if(e.target.closest('.listform .go')){
